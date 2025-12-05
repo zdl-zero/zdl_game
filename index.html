@@ -806,12 +806,22 @@
     function startGameWithMode(isDailyMode, challenge) {
         document.getElementById('shootingModeModal')?.remove();
         document.getElementById('startScreen').style.display = 'none';
-        document.getElementById('gameCanvas').style.display = 'block';
-        document.getElementById('nameInput').style.display = 'none';
-        if (soundManager.enabled) {
-            soundManager.playBackgroundMusic();
-        }
-        startGame(isDailyMode, challenge);
+        
+        // 确保画布容器先显示，然后再初始化游戏
+        const gameCanvas = document.getElementById('gameCanvas');
+        gameCanvas.style.display = 'block';
+        
+        // 强制浏览器重绘，确保画布可见
+        void gameCanvas.offsetHeight;
+        
+        // 等待一帧确保DOM更新
+        requestAnimationFrame(() => {
+            document.getElementById('nameInput').style.display = 'none';
+            if (soundManager.enabled) {
+                soundManager.playBackgroundMusic();
+            }
+            startGame(isDailyMode, challenge);
+        });
     }
 
     class LeaderboardManager {
@@ -1109,6 +1119,21 @@
         let gameMode = { isDaily: isDailyMode, challenge: challenge };
 
         function preload() {
+            // ========== 新增：显示加载进度 ==========
+            const loadingText = this.add.text(512, 384, '加载中...', {
+                fontSize: '24px',
+                fill: '#ffcc00'
+            }).setOrigin(0.5).setScrollFactor(0);
+            
+            // 加载进度事件
+            this.load.on('progress', (value) => {
+                const percent = Math.floor(value * 100);
+                loadingText.setText(`游戏资源加载中... ${percent}%`);
+            });
+            
+            this.load.on('complete', () => {
+                loadingText.destroy();
+            });
             this.load.image('gameBackground', 'res/background.png');
             let gfx = this.make.graphics();
             gfx.fillStyle(0xffffff).fillCircle(2,2,2).generateTexture('star', 4, 4);
@@ -1140,6 +1165,18 @@
         }
 
         function create() {
+            // ========== 新增：检查资源是否加载完成 ==========
+            if (!this.textures.exists('player') || !this.textures.exists('bullet')) {
+                console.log('等待资源加载...');
+                // 如果资源没加载好，延迟重试
+                this.time.delayedCall(100, () => {
+                    this.scene.restart();
+                });
+                return;
+            }
+            
+            // 确保游戏画布在Phaser中可见
+            this.game.canvas.style.visibility = 'visible';
             background = this.add.image(512, 384, 'gameBackground')
             .setDisplaySize(1024*2, 768*2)
             .setAlpha(0.8)
