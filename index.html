@@ -1138,7 +1138,7 @@ window.addEventListener('load', function() {
         let gameMode = { isDaily: isDailyMode, challenge: challenge }; // 新增：游戏模式信息
 
         function preload() {
-            this.load.image('gameBackground', 'res/background.png');
+            this.load.image('gameBackground', 'zdl_game/res/background.png');
             let gfx = this.make.graphics();
             gfx.fillStyle(0xffffff).fillCircle(2,2,2).generateTexture('star', 4, 4);
             //gfx.clear().lineStyle(2, 0x00ff00).fillStyle(0x003300).fillCircle(16,16,16).strokeCircle(16,16,16).lineStyle(2, 0x00ff00).moveTo(16,16).lineTo(32,16).strokePath().generateTexture('player', 32, 32);
