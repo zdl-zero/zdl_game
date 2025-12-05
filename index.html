@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>抗日奇侠传 - 是奇侠就撑到100波!</title>
+    <audio id="bgm" loop preload="auto" style="display: none;">
+    <source src="res/bgm.mp3" type="audio/mpeg">
+    您的浏览器不支持音频元素。
+    </audio>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #111; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif; 
+            overflow: hidden; 
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23111"/><text x="10" y="20" font-size="12" fill="%23800" opacity="0.2">杀</text><text x="30" y="40" font-size="12" fill="%23800" opacity="0.2">鬼</text><text x="50" y="60" font-size="12" fill="%23800" opacity="0.2">子</text></svg>');
+        }
+        canvas { 
+            box-shadow: 0 0 80px rgba(255, 0, 0, 0.4); 
+            border: 2px solid #8B0000; 
+        }
+        #startScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0a0a 0%, #2e1a1a 50%, #3e1616 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+            text-align: center;
+        }
+        #startScreen h1 {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 25px #ff0000, 0 0 35px #ff0000, 0 0 45px #8B0000;
+            color: #ffcc00;
+            letter-spacing: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #ffcc00, #ff6600, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 10px;
+            border: 3px solid #8B0000;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+        #startScreen h2 {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: #ff9900;
+            text-shadow: 0 0 15px #ff9900, 0 0 25px #8B0000;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+        #startButton, #dailyChallengeBtn, #leaderboardBtn {
+            padding: 18px 45px;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #8B0000, #B22222, #FF0000);
+            border: 3px solid #ffcc00;
+            border-radius: 10px;
+            color: #ffcc00;
+            cursor: pointer;
+            margin: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.8), inset 0 0 15px rgba(255, 204, 0, 0.3);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #000;
+            position: relative;
+            overflow: hidden;
+        }
+        #startButton:hover, #dailyChallengeBtn:hover, #leaderboardBtn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 35px rgba(255, 0, 0, 1), inset 0 0 20px rgba(255, 204, 0, 0.5);
+            background: linear-gradient(45deg, #FF0000, #B22222, #8B0000);
+        }
+        #startButton::before, #dailyChallengeBtn::before, #leaderboardBtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        #startButton:hover::before, #dailyChallengeBtn:hover::before, #leaderboardBtn:hover::before {
+            left: 100%;
+        }
+        #controls {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 2.5rem;
+            max-width: 700px;
+            text-align: left;
+            border: 2px solid #8B0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+            position: relative;
+        }
+        #controls::before {
+            content: '★';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            color: #ffcc00;
+            font-size: 30px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        #controls::after {
+            content: '★';
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            color: #ffcc00;
+            font-size: 30px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        #controls h3 {
+            color: #ffcc00;
+            margin-top: 0;
+            border-bottom: 2px solid #8B0000;
+            padding-bottom: 15px;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px #ff0000;
+            text-align: center;
+        }
+        .control-item {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        .control-key {
+            display: inline-block;
+            background: #2a0a0a;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 0 10px;
+            min-width: 40px;
+            text-align: center;
+            border: 2px solid #8B0000;
+            color: #ffcc00;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        .highlight {
+            color: #ffcc00;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ff0000;
+        }
+        .martial-title {
+            color: #ff6600;
+            font-size: 1.4rem;
+            margin-top: 30px;
+            text-align: center;
+            border-top: 1px solid #8B0000;
+            padding-top: 15px;
+            text-shadow: 0 0 5px #ff0000;
+        }
+        .martial-list {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .martial-item {
+            background: rgba(139, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ffcc00;
+            color: #ffcc00;
+            font-size: 1.1rem;
+        }
+        #gameCanvas {
+            display: none;
+        }
+        #soundToggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(139, 0, 0, 0.9);
+            color: #ffcc00;
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 101;
+            font-weight: bold;
+            text-shadow: 0 0 5px #000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        #soundToggle:hover {
+            background: rgba(255, 0, 0, 0.9);
+            transform: scale(1.05);
+        }
+        #nameInput {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            font-size: 28px;
+            border: 4px solid #ffcc00;
+            border-radius: 15px;
+            background: #2a0a0a;
+            color: #ffcc00;
+            display: none;
+            z-index: 200;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+        }
+        #nameInput::placeholder {
+            color: #ff9966;
+        }
+        .patriotic-banner {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(90deg, #8B0000, #B22222, #FF0000);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #ffcc00;
+            font-weight: bold;
+            text-shadow: 0 0 10px #000;
+            letter-spacing: 3px;
+            border-bottom: 3px solid #ffcc00;
+        }
+        .patriotic-banner::before, .patriotic-banner::after {
+            content: '❖';
+            margin: 0 20px;
+            font-size: 2rem;
+            color: #ffcc00;
+        }
+        .flames {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
+            pointer-events: none;
+            z-index: 99;
+        }
+        .flames::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30"><path d="M0,30 C20,15 30,5 50,10 C70,15 80,5 100,20 L100,30 L0,30 Z" fill="%23ff6600"/></svg>') repeat-x;
+            bottom: 0;
+            animation: flameMove 2s infinite alternate;
+        }
+        @keyframes flameMove {
+            0% { transform: translateX(-5px); }
+            100% { transform: translateX(5px); }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+    <div class="patriotic-banner">抗日奇侠传 - 还我河山!</div>
+    <div class="flames"></div>
+    
+    <button id="soundToggle">♪ 抗日进行曲: 开</button>
+    <div id="volumeControl" style="position: absolute; top: 20px; right: 150px; background: rgba(139, 0, 0, 0.9); padding: 8px 15px; border-radius: 5px; border: 2px solid #ffcc00; z-index: 101;">
+    <span style="color: #ffcc00; font-size: 14px; margin-right: 8px;">音量:</span>
+    <input type="range" id="volumeSlider" min="0" max="100" value="30" style="width: 80px;">
+    </div>
+    
+    <input type="text" id="nameInput" placeholder="输入大侠名号" maxlength="10">
+    
+    <div id="startScreen">
+        <h1>抗日奇侠传</h1>
+        <h2>是奇侠就撑到100波!</h2>
+        <h2 style="font-size: 1.8rem; color: #ff9966; margin-top: -20px; margin-bottom: 20px;">杀鬼子，报国仇，雪家恨！</h2>
+        
+        <div id="controls">
+            <h3>⚔️ 奇侠作战指令</h3>
+            <div class="control-item">
+                <span>移动(迂回穿插):</span>
+                <span class="control-key">W</span>
+                <span class="control-key">A</span>
+                <span class="control-key">S</span>
+                <span class="control-key">D</span>
+                或方向键
+            </div>
+            <div class="control-item">
+                <span>自动攻击:</span>
+                <span style="color:#ffcc00">鼠标指向鬼子 (自动索敌)</span>
+            </div>
+            <div class="control-item">
+                <span>神功爆发:</span>
+                <span class="control-key">空格键</span>
+                <span> - 5秒内化身抗日奇侠</span>
+            </div>
+            <div class="control-item">
+                <span>作战目标:</span>
+                <span>在无尽波次中奋勇杀敌，每5波遭遇<span class="highlight">鬼子大佐</span>！</span>
+            </div>
+            
+            <div class="martial-title">🎌 鬼子类型</div>
+            <div class="martial-list">
+                <div class="martial-item">普通鬼子</div>
+                <div class="martial-item">快速鬼子</div>
+                <div class="martial-item">坦克鬼子</div>
+                <div class="martial-item">射手鬼子</div>
+                <div class="martial-item">鬼子大佐</div>
+            </div>
+            
+            <div class="martial-title">⚔️ 奇侠神功</div>
+            <div class="martial-list">
+                <div class="martial-item">手撕鬼子</div>
+                <div class="martial-item">包子炸弹</div>
+                <div class="martial-item">飞檐走壁</div>
+                <div class="martial-item">五雷轰顶</div>
+                <div class="martial-item">吸血神功</div>
+            </div>
+        </div>
+        
+        <div>
+            <button id="dailyChallengeBtn">🈲 地狱挑战 (慎入)</button>
+            <button id="startButton">⚔️ 正面作战</button>
+            <button id="leaderboardBtn">🏆 英雄榜</button>
+        </div>
+        
+        <div style="margin-top: 30px; color: #ff9966; font-size: 1.1rem; max-width: 800px;">
+            <p>※ 游戏纯属虚构，旨在弘扬爱国主义精神 ※</p>
+            <p style="font-size: 0.9rem; color: #ffcc00;">铭记历史，勿忘国耻，振兴中华！</p>
+        </div>
+    </div>
+
+    <div id="gameCanvas"></div>
+
+<script>
+    // 音效管理器（保持不变）
+    class SoundManager {
+        constructor() {
+            this.audioContext = null;
+            this.sounds = {};
+            this.enabled = true;
+            this.bgmEnabled = true; // 新增：背景音乐开关
+            this.bgmAudio = null;   // 新增：背景音乐HTMLAudioElement
+            this.init();
+        }
+        
+        init() {
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.createSounds();
+            } catch (e) {
+                console.warn("Web Audio API not supported:", e);
+                this.enabled = false;
+            }
+            this.initBackgroundMusic();
+        }
+        
+        createSounds() {
+            this.sounds.shoot = this.createShootSound();
+            this.sounds.shotgun = this.createShotgunSound();
+            this.sounds.minigun = this.createMinigunSound();
+            this.sounds.laser = this.createLaserSound();
+            this.sounds.rocket = this.createRocketSound();
+            this.sounds.hit = this.createHitSound();
+            this.sounds.critical = this.createCriticalSound();
+            this.sounds.explosion = this.createExplosionSound();
+            this.sounds.powerUp = this.createPowerUpSound();
+            this.sounds.thunder = this.createThunderSound();
+            this.sounds.missile = this.createMissileSound();
+            this.sounds.blade = this.createBladeSound();
+            this.sounds.levelUp = this.createLevelUpSound();
+            this.sounds.waveStart = this.createWaveStartSound();
+            this.sounds.bossAppear = this.createBossAppearSound();
+            this.sounds.background = this.createBackgroundSound();
+        }
+
+        // 新增：初始化背景音乐
+            initBackgroundMusic() {
+                // 使用HTML5 Audio元素
+                this.bgmAudio = document.getElementById('bgm');
+                if (!this.bgmAudio) {
+                    this.bgmAudio = new Audio('抗日进行曲.mp3');
+                    this.bgmAudio.loop = true;
+                    this.bgmAudio.volume = 0.0005;
+                    this.bgmAudio.preload = 'auto';
+                }
+            }
+            // 新增：设置背景音乐音量（0-1范围）
+        setBackgroundMusicVolume(volume) {
+            if (this.bgmAudio) {
+                // 确保音量在0-1之间
+                const clampedVolume = Math.max(0, Math.min(1, volume));
+                this.bgmAudio.volume = clampedVolume;
+                // 保存当前音量
+                this.currentBgmVolume = clampedVolume;
+                console.log('背景音乐音量设置为:', clampedVolume);
+            }
+        }
+
+        // 新增：获取当前音量
+        getBackgroundMusicVolume() {
+            return this.bgmAudio ? this.bgmAudio.volume : 0.3;
+        }
+
+        // 新增：调整音量（增加或减少百分比）
+        adjustBackgroundMusicVolume(percentChange) {
+            if (!this.bgmAudio) return;
+            const currentVol = this.bgmAudio.volume;
+            const newVol = Math.max(0, Math.min(1, currentVol + percentChange));
+            this.setBackgroundMusicVolume(newVol);
+            return newVol;
+        }
+
+            // 新增：播放背景音乐
+            playBackgroundMusic() {
+                if (!this.bgmEnabled || !this.bgmAudio) return;
+                
+                const playPromise = this.bgmAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('抗日进行曲开始播放');
+                    }).catch(error => {
+                        console.log('自动播放被阻止:', error);
+                    });
+                }
+            }
+
+            // 新增：暂停背景音乐
+            pauseBackgroundMusic() {
+                if (this.bgmAudio) {
+                    this.bgmAudio.pause();
+                }
+            }
+
+            // 新增：设置背景音乐音量
+            setBackgroundMusicVolume(volume) {
+                if (this.bgmAudio) {
+                    this.bgmAudio.volume = Math.max(0, Math.min(1, volume));
+                }
+            }
+        
+        createShootSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+            };
+        }
+        
+        createShotgunSound() {
+            return () => {
+                if (!this.enabled) return;
+                for (let i = 0; i < 5; i++) {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    oscillator.type = 'sine';
+                    const freq = 600 + Math.random() * 200;
+                    oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime + i * 0.02);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + i * 0.02 + 0.15);
+                    gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime + i * 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.02 + 0.15);
+                    oscillator.start(this.audioContext.currentTime + i * 0.02);
+                    oscillator.stop(this.audioContext.currentTime + i * 0.02 + 0.15);
+                }
+            };
+        }
+        
+        createMinigunSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(1200, this.audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.05);
+            };
+        }
+        
+        createLaserSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.2);
+            };
+        }
+        
+        createRocketSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(150, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.3);
+            };
+        }
+        
+        createHitSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+            };
+        }
+        
+        createCriticalSound() {
+            return () => {
+                if (!this.enabled) return;
+                for (let i = 0; i < 3; i++) {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    oscillator.type = 'sine';
+                    const freq = 800 + i * 200;
+                    oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime + i * 0.05);
+                    oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + i * 0.05 + 0.1);
+                    gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime + i * 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.05 + 0.1);
+                    oscillator.start(this.audioContext.currentTime + i * 0.05);
+                    oscillator.stop(this.audioContext.currentTime + i * 0.05 + 0.1);
+                }
+            };
+        }
+        
+        createExplosionSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator1 = this.audioContext.createOscillator();
+                const gainNode1 = this.audioContext.createGain();
+                oscillator1.connect(gainNode1);
+                gainNode1.connect(this.audioContext.destination);
+                oscillator1.type = 'sine';
+                oscillator1.frequency.setValueAtTime(80, this.audioContext.currentTime);
+                oscillator1.frequency.exponentialRampToValueAtTime(40, this.audioContext.currentTime + 0.5);
+                gainNode1.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                gainNode1.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                oscillator1.start(this.audioContext.currentTime);
+                oscillator1.stop(this.audioContext.currentTime + 0.5);
+                
+                const oscillator2 = this.audioContext.createOscillator();
+                const gainNode2 = this.audioContext.createGain();
+                oscillator2.connect(gainNode2);
+                gainNode2.connect(this.audioContext.destination);
+                oscillator2.type = 'square';
+                oscillator2.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                oscillator2.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.2);
+                gainNode2.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode2.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+                oscillator2.start(this.audioContext.currentTime);
+                oscillator2.stop(this.audioContext.currentTime + 0.2);
+            };
+        }
+        
+        createPowerUpSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, this.audioContext.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.5);
+            };
+        }
+        
+        createThunderSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(1000, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.3);
+            };
+        }
+        
+        createMissileSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.4);
+                gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.4);
+            };
+        }
+        
+        createBladeSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(500, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.2);
+            };
+        }
+        
+        createLevelUpSound() {
+            return () => {
+                if (!this.enabled) return;
+                for (let i = 0; i < 5; i++) {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    const freq = 400 + i * 100;
+                    oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime + i * 0.1);
+                    gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime + i * 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.1 + 0.2);
+                    oscillator.start(this.audioContext.currentTime + i * 0.1);
+                    oscillator.stop(this.audioContext.currentTime + i * 0.1 + 0.2);
+                }
+            };
+        }
+        
+        createWaveStartSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.5);
+            };
+        }
+        
+        createBossAppearSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator1 = this.audioContext.createOscillator();
+                const gainNode1 = this.audioContext.createGain();
+                oscillator1.connect(gainNode1);
+                gainNode1.connect(this.audioContext.destination);
+                oscillator1.type = 'sine';
+                oscillator1.frequency.setValueAtTime(60, this.audioContext.currentTime);
+                gainNode1.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                gainNode1.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1.5);
+                oscillator1.start(this.audioContext.currentTime);
+                oscillator1.stop(this.audioContext.currentTime + 1.5);
+                
+                const oscillator2 = this.audioContext.createOscillator();
+                const gainNode2 = this.audioContext.createGain();
+                oscillator2.connect(gainNode2);
+                gainNode2.connect(this.audioContext.destination);
+                oscillator2.type = 'square';
+                oscillator2.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                oscillator2.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 1.5);
+                gainNode2.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode2.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1.5);
+                oscillator2.start(this.audioContext.currentTime);
+                oscillator2.stop(this.audioContext.currentTime + 1.5);
+            };
+        }
+        
+        createBackgroundSound() {
+            return () => {
+                if (!this.enabled) return;
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(220, this.audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.05, this.audioContext.currentTime);
+                oscillator.start(this.audioContext.currentTime);
+                return () => {
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                    oscillator.stop(this.audioContext.currentTime + 0.5);
+                };
+            };
+        }
+        
+        play(soundName) {
+            if (this.enabled && this.sounds[soundName]) {
+                this.sounds[soundName]();
+            }
+        }
+        
+        toggle() {
+            this.enabled = !this.enabled;
+            this.bgmEnabled = this.enabled;
+            
+            const button = document.getElementById('soundToggle');
+            if (this.enabled) {
+                button.textContent = '♪ 抗日进行曲: 开';
+                this.playBackgroundMusic();
+            } else {
+                button.textContent = '♪ 抗日进行曲: 关';
+                this.pauseBackgroundMusic();
+            }
+            
+            return this.enabled;
+            }
+    }
+
+    const soundManager = new SoundManager();
+    // === 新增：射击模式相关变量 ===
+let shootingMode = 'auto'; // 'auto' 或 'manual'
+let lastManualFireTime = 0;
+
+// === 新增：显示射击模式选择的函数 ===
+function showShootingModeSelection(isDailyMode = false, challenge = null) {
+    const modeSelectionHTML = `
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:200;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+            <h2 style="color:#ffcc00;font-size:3rem;margin-bottom:2rem;">⚔️ 选择射击模式</h2>
+            <div style="display:flex;gap:2rem;margin-bottom:2rem;">
+                <button id="autoModeBtn" class="mode-btn" style="padding:20px 40px;font-size:1.8rem;background:linear-gradient(45deg,#8B0000,#B22222);border:3px solid #ffcc00;border-radius:10px;color:#ffcc00;cursor:pointer;transition:all 0.3s;">
+                    🎯 自动射击<br><small>鼠标指向自动射击</small>
+                </button>
+                <button id="manualModeBtn" class="mode-btn" style="padding:20px 40px;font-size:1.8rem;background:linear-gradient(45deg,#004488,#0066aa);border:3px solid #00ccff;border-radius:10px;color:#00ccff;cursor:pointer;transition:all 0.3s;">
+                    🖱️ 手动射击<br><small>鼠标左键点击射击</small>
+                </button>
+            </div>
+            <div style="color:#ff9966;font-size:1.2rem;max-width:600px;text-align:center;">
+                <p>🎯 自动模式：鼠标指向敌人自动射击，适合新手</p>
+                <p>🖱️ 手动模式：鼠标左键点击射击，更有操作感</p>
+                <p style="margin-top:1rem;">游戏中可按 M 键切换模式</p>
+            </div>
+        </div>
+    `;
+    
+    const modal = document.createElement('div');
+    modal.id = 'shootingModeModal';
+    modal.innerHTML = modeSelectionHTML;
+    document.body.appendChild(modal);
+    
+    document.getElementById('autoModeBtn').addEventListener('click', function() {
+        shootingMode = 'auto';
+        startGameWithMode(isDailyMode, challenge);
+    });
+    
+    document.getElementById('manualModeBtn').addEventListener('click', function() {
+        shootingMode = 'manual';
+        startGameWithMode(isDailyMode, challenge);
+    });
+}
+
+function startGameWithMode(isDailyMode, challenge) {
+    document.getElementById('shootingModeModal')?.remove();
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameCanvas').style.display = 'block';
+    document.getElementById('nameInput').style.display = 'none';
+    if (soundManager.enabled) {
+        soundManager.playBackgroundMusic();
+    }
+    startGame(isDailyMode, challenge);
+}
+
+    // 新增：排行榜管理器
+    class LeaderboardManager {
+        constructor() {
+            this.key = 'survivalGameLeaderboard';
+            this.dailyKey = 'survivalDailyLeaderboard';
+            this.load();
+        }
+        
+        load() {
+            const data = localStorage.getItem(this.key);
+            const dailyData = localStorage.getItem(this.dailyKey);
+            this.leaderboard = data ? JSON.parse(data) : [];
+            this.dailyLeaderboard = dailyData ? JSON.parse(dailyData) : [];
+        }
+        
+        save() {
+            localStorage.setItem(this.key, JSON.stringify(this.leaderboard));
+            localStorage.setItem(this.dailyKey, JSON.stringify(this.dailyLeaderboard));
+        }
+        
+        addScore(name, score, wave, isDaily = false) {
+            const entry = { name, score, wave, date: new Date().toISOString() };
+            const board = isDaily ? this.dailyLeaderboard : this.leaderboard;
+            board.push(entry);
+            board.sort((a, b) => b.score - a.score);
+            // 只保留前50名
+            if (board.length > 50) board.length = 50;
+            this.save();
+        }
+        
+        getDailyScores() {
+            const today = new Date().toDateString();
+            return this.dailyLeaderboard.filter(entry => 
+                new Date(entry.date).toDateString() === today
+            );
+        }
+        
+        getTopScores(limit = 10) {
+            return this.leaderboard.slice(0, limit);
+        }
+    }
+
+    const leaderboardManager = new LeaderboardManager();
+
+    // 新增：每日挑战生成器
+    class DailyChallengeGenerator {
+        static generateChallenge(seedDate = new Date()) {
+            // 使用日期作为种子生成固定挑战
+            const seed = this.hashCode(seedDate.toDateString());
+            const rng = this.seededRandom(seed);
+            
+            const templates = [
+                {
+                    name: "霰弹专精",
+                    description: "只能使用霰弹枪，但伤害+50%",
+                    weapon: "shotgun",
+                    mods: { damageMult: 1.5, fireRateMult: 1.2 }
+                },
+                {
+                    name: "极速风暴",
+                    description: "攻速+100%，但敌人速度+30%",
+                    weapon: "minigun",
+                    mods: { fireRateMult: 0.5, enemySpeedMult: 1.3 }
+                },
+                {
+                    name: "近战大师",
+                    description: "光能战刃伤害+80%，范围+50%",
+                    weapon: "blade",
+                    mods: { damageMult: 1.8, areaSize: 1.5 }
+                },
+                {
+                    name: "玻璃大炮",
+                    description: "伤害+100%，但生命值减半",
+                    weapon: "pistol",
+                    mods: { damageMult: 2.0, maxHp: 0.5 }
+                },
+                {
+                    name: "导弹雨",
+                    description: "导弹等级+3，但其他武器伤害-30%",
+                    weapon: "pistol",
+                    mods: { missileLevel: 3, damageMult: 0.7 }
+                }
+            ];
+            
+            const challenge = templates[Math.floor(rng() * templates.length)];
+            return {
+                ...challenge,
+                date: seedDate.toDateString(),
+                seed: seed
+            };
+        }
+        
+        static hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 转换为32位整数
+            }
+            return hash;
+        }
+        
+        static seededRandom(seed) {
+            return function() {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280;
+            };
+        }
+    }
+
+    // 新增：分数计算器
+    function calculateScore(wave, time, enemiesKilled, isDaily = false) {
+        let score = wave * 1000 + enemiesKilled * 10 + Math.floor(time / 1000) * 5;
+        if (isDaily) score = Math.floor(score * 1.2); // 每日挑战分数加成
+        return score;
+    }
+
+    // 原有事件监听
+    document.getElementById('startButton').addEventListener('click', function() {
+    showShootingModeSelection(false); // false表示普通模式
+});
+
+document.getElementById('dailyChallengeBtn').addEventListener('click', function() {
+    const todayChallenge = DailyChallengeGenerator.generateChallenge();
+    const confirmMsg = `今日挑战：${todayChallenge.name}\n${todayChallenge.description}\n\n是否接受挑战？`;
+    if (confirm(confirmMsg)) {
+        showShootingModeSelection(true, todayChallenge); // true表示每日挑战模式
+    }
+});
+
+    document.getElementById('leaderboardBtn').addEventListener('click', function() {
+        showLeaderboard();
+    });
+
+    document.getElementById('soundToggle').addEventListener('click', function() {
+        soundManager.toggle();
+    });
+    // 音量滑块控制
+document.getElementById('volumeSlider').addEventListener('input', function(e) {
+    const volume = e.target.value / 100; // 转换为0-1范围
+    soundManager.setBackgroundMusicVolume(volume);
+    
+    // 可选：保存音量设置到本地存储
+    localStorage.setItem('gameVolume', volume);
+});
+
+// 页面加载时恢复音量设置
+window.addEventListener('load', function() {
+    const savedVolume = localStorage.getItem('gameVolume');
+    if (savedVolume !== null) {
+        const volume = parseFloat(savedVolume);
+        document.getElementById('volumeSlider').value = volume * 100;
+        soundManager.setBackgroundMusicVolume(volume);
+    }
+});
+
+    function showLeaderboard() {
+        const dailyScores = leaderboardManager.getDailyScores();
+        const allTimeScores = leaderboardManager.getTopScores();
+        
+        let leaderboardHTML = `
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+                        background:rgba(0,0,0,0.95);padding:30px;border:3px solid #ff9900;
+                        border-radius:15px;color:white;z-index:300;max-width:500px;">
+                <h2 style="color:#ff9900;text-align:center;margin-bottom:20px;">🏆 排行榜</h2>
+                <div style="display:flex;gap:20px;">
+                    <div style="flex:1;">
+                        <h3 style="color:#00ffff;">今日挑战</h3>
+                        ${dailyScores.length === 0 ? '<p style="color:#888;">暂无记录</p>' : 
+                            dailyScores.slice(0, 5).map((entry, i) => 
+                                `<div style="margin:5px 0;font-size:14px;">
+                                    ${i+1}. <span style="color:#ffff00;">${entry.name}</span> - 
+                                    <span style="color:#ff9900;">${entry.score}</span>分
+                                    <span style="color:#888;">(波次${entry.wave})</span>
+                                </div>`
+                            ).join('')
+                        }
+                    </div>
+                    <div style="flex:1;">
+                        <h3 style="color:#ff00ff;">历史排行</h3>
+                        ${allTimeScores.length === 0 ? '<p style="color:#888;">暂无记录</p>' : 
+                            allTimeScores.slice(0, 5).map((entry, i) => 
+                                `<div style="margin:5px 0;font-size:14px;">
+                                    ${i+1}. <span style="color:#ffff00;">${entry.name}</span> - 
+                                    <span style="color:#ff9900;">${entry.score}</span>分
+                                    <span style="color:#888;">(波次${entry.wave})</span>
+                                </div>`
+                            ).join('')
+                        }
+                    </div>
+                </div>
+                <button onclick="document.getElementById(\'leaderboardModal\').remove()" 
+                        style="margin-top:20px;padding:10px 20px;background:#ff9900;border:none;
+                               border-radius:5px;color:white;cursor:pointer;width:100%;">
+                    关闭
+                </button>
+            </div>
+        `;
+        
+        const modal = document.createElement('div');
+        modal.id = 'leaderboardModal';
+        modal.innerHTML = leaderboardHTML;
+        document.body.appendChild(modal);
+    }
+
+    function startGame(isDailyMode = false, challenge = null) {
+        const config = {
+            type: Phaser.WEBGL,
+            parent: 'gameCanvas',
+            width: 1024,
+            height: 768,
+            backgroundColor: '#050505',
+            physics: {
+                default: 'arcade',
+                arcade: { gravity: { y: 0 }, debug: false }
+            },
+            scene: { preload: preload, create: create, update: update },
+            pixelArt: false
+        };
+
+        const game = new Phaser.Game(config);
+
+        let player, bullets, enemyBullets, enemies, xpOrbs, particles;
+        let orbiters, missiles, damageTexts;
+        let cursors, wasd, keySpace;
+        let background;
+        let slashGraphics, effectGraphics, bossGraphics;
+        let isPaused = false;
+        let isGameOver = false;
+        let gameTime = 0;
+        let pendingWaveStart = false;
+        let enemiesKilled = 0; // 新增：杀敌数统计
+         // === 新增：加特林音效控制变量 ===
+        let minigunSound = null;        // 存储加特林音效对象
+        let minigunSoundPlaying = false; // 是否正在播放
+        let minigunFireCount = 0;       // 加特林射击计数
+        // === 新增结束 ===
+        let lastFired = 0;
+        let missileTimer = 0;
+        let thunderTimer = 0;
+        let auraTimer = 0;
+        let wave = 1;
+        let waveTimeLeft = 30;
+        let isBossWave = false;
+        let spawnTimer = 0;
+        let level = 1;
+        let currentXP = 0;
+        let neededXP = 20;
+        
+        let playerStats = {
+            hp: 100, maxHp: 100, baseSpeed: 220, speed: 220,
+            damageMult: 1.0, fireRateMult: 1.0, projectileCount: 0,
+            magnetRange: 150, weapon: 'pistol', 
+            penetration: 0, ricochet: 0, orbitCount: 0, missileLevel: 0,
+            areaSize: 1.0, lifesteal: 0,
+            invulnerable: false, 
+            thunderLvl: 0, auraLvl: 0, executeThreshold: 0,
+            enemySpeedMult: 1.0 // 新增：敌人速度倍率（用于挑战）
+        };
+
+        let powerUp = { 
+            isActive: false, 
+            cooldown: 0, 
+            maxCooldown: 15000,
+            duration: 5000,     
+            timer: 0,
+            speedMult: 1.8,     
+            damageMult: 2.0,    
+            fireRateMult: 0.5   
+        };
+
+        // 如果是每日挑战模式，应用挑战修改
+        if (isDailyMode && challenge) {
+            playerStats.weapon = challenge.weapon;
+            if (challenge.mods.damageMult) playerStats.damageMult = challenge.mods.damageMult;
+            if (challenge.mods.fireRateMult) playerStats.fireRateMult = challenge.mods.fireRateMult;
+            if (challenge.mods.maxHp) {
+                playerStats.maxHp = Math.floor(playerStats.maxHp * challenge.mods.maxHp);
+                playerStats.hp = playerStats.maxHp;
+            }
+            if (challenge.mods.missileLevel) playerStats.missileLevel = challenge.mods.missileLevel;
+            if (challenge.mods.enemySpeedMult) playerStats.enemySpeedMult = challenge.mods.enemySpeedMult;
+        }
+
+        const upgradePool = [
+    { id: 'dmg', name: '手撕鬼子', desc: '徒手攻击力 +30%', color: '#ff4444', weight: 10, apply: () => playerStats.damageMult += 0.3 },
+    { id: 'spd', name: '飞檐走壁', desc: '攻击速度 +20%', color: '#ffff00', weight: 10, apply: () => playerStats.fireRateMult *= 0.8 },
+    { id: 'area', name: '横扫千军', desc: '攻击范围 +25%', color: '#00ff00', weight: 8, apply: () => playerStats.areaSize += 0.25 },
+    { id: 'multi', name: '分身术', desc: '同时攻击目标+1', color: '#00ffff', weight: 5, apply: () => playerStats.projectileCount += 1 },
+    { id: 'heal', name: '包子炸弹', desc: '吃包子恢复 50% 生命', color: '#ff88cc', weight: 8, apply: () => updateHealth(playerStats.maxHp * 0.5) },
+    { id: 'hp_up', name: '金刚不坏', desc: '最大生命 +80', color: '#88ff88', weight: 6, apply: () => { playerStats.maxHp += 80; updateHealth(80); } },
+    { id: 'orbit', name: '螺旋手里剑', desc: '增加环绕飞刀', color: '#aa00ff', weight: 6, apply: () => { playerStats.orbitCount++; updateOrbiters(); } },
+    { id: 'missile', name: '箭雨流星', desc: '发射自动追踪飞箭', color: '#ffffff', weight: 6, apply: () => playerStats.missileLevel++ },
+    { id: 'magnet', name: '隔空取物', desc: '拾取范围大幅增加', color: '#0000ff', weight: 5, apply: () => playerStats.magnetRange += 150 },
+    { id: 'vamp', name: '吸血神功', desc: '击杀恢复 1.5% 生命', color: '#880000', weight: 4, apply: () => playerStats.lifesteal += 0.015 },
+    { id: 'thunder', name: '五雷轰顶', desc: '召唤天雷打击全屏鬼子', color: '#44aaff', weight: 5, apply: () => playerStats.thunderLvl++ },
+    { id: 'aura', name: '护体罡气', desc: '持续震伤周围鬼子', color: '#ccaaff', weight: 5, apply: () => playerStats.auraLvl++ },
+    { id: 'exec', name: '一击必杀', desc: '秒杀残血鬼子', color: '#ff0000', weight: 4, apply: () => playerStats.executeThreshold = (playerStats.executeThreshold || 0.1) + 0.05 },
+    { id: 'wp_blade', name: '解锁: 青龙偃月刀', desc: '大范围横扫，清理鬼子群', color: '#ff3300', weight: 4, unique: true, condition: ()=>playerStats.weapon !== 'blade', apply: () => playerStats.weapon = 'blade' },
+    { id: 'wp_shotgun', name: '解锁: 霰弹土炮', desc: '扇形散射，近战爆发', color: '#ffa500', weight: 3, unique: true, condition: ()=>playerStats.weapon !== 'shotgun', apply: () => playerStats.weapon = 'shotgun' },
+    { id: 'wp_minigun', name: '解锁: 暴雨梨花针', desc: '极高射速，覆盖式攻击', color: '#ff00ff', weight: 3, unique: true, condition: ()=>playerStats.weapon !== 'minigun', apply: () => playerStats.weapon = 'minigun' }
+];
+
+        let ui = {};
+        let gameMode = { isDaily: isDailyMode, challenge: challenge }; // 新增：游戏模式信息
+
+        function preload() {
+            this.load.image('gameBackground', 'res/background.png');
+            let gfx = this.make.graphics();
+            gfx.fillStyle(0xffffff).fillCircle(2,2,2).generateTexture('star', 4, 4);
+            //gfx.clear().lineStyle(2, 0x00ff00).fillStyle(0x003300).fillCircle(16,16,16).strokeCircle(16,16,16).lineStyle(2, 0x00ff00).moveTo(16,16).lineTo(32,16).strokePath().generateTexture('player', 32, 32);
+            this.load.image('player', 'res/balu.png');
+            gfx.clear().fillStyle(0xffffaa).fillCircle(5,5,5).generateTexture('bullet', 10, 10);
+            gfx.clear().fillStyle(0xff4444).fillCircle(6,6,6).generateTexture('bullet_enemy', 12, 12);
+            //gfx.clear().lineStyle(2, 0xff0000).fillStyle(0x550000).fillCircle(15,15,14).strokeCircle(15,15,14).generateTexture('enemy_basic', 30, 30);
+            this.load.image('enemy_basic', 'res/xiaoguizi1.png');
+            //gfx.clear().lineStyle(2, 0x00ffff).fillStyle(0x005555).beginPath().moveTo(0,30).lineTo(15,0).lineTo(30,30).closePath().fillPath().strokePath().generateTexture('enemy_fast', 30, 30);
+            //gfx.clear().lineStyle(3, 0xff00ff).fillStyle(0x550055).fillRect(0,0,40,40).strokeRect(0,0,40,40).generateTexture('enemy_tank', 40, 40);
+            //gfx.clear().lineStyle(2, 0xffaa00).fillStyle(0x553300).beginPath().moveTo(15,0).lineTo(30,15).lineTo(15,30).lineTo(0,15).closePath().fillPath().strokePath().generateTexture('enemy_shooter', 30, 30);
+            this.load.image('enemy_fast', 'res/xiaoguizi2.png');
+            this.load.image('enemy_tank', 'res/xiaoguizi3.png');
+            this.load.image('enemy_shooter', 'res/xiaoguizi4.png');
+            //gfx.clear().lineStyle(4, 0xff0000).fillStyle(0x440000).beginPath().moveTo(0, -60).lineTo(50, -20).lineTo(40, 40).lineTo(0, 60).lineTo(-40, 40).lineTo(-50, -20).closePath().fillPath().strokePath().generateTexture('enemy_boss', 100, 120);
+            this.load.image('enemy_boss', 'res/xiaoguizi5.png');
+            gfx.clear().fillStyle(0x00aaff).fillCircle(6,6,6).generateTexture('xp_orb', 12, 12);
+            gfx.clear().fillStyle(0xaa00ff).lineStyle(2,0xffffff).fillCircle(10,10,8).strokeCircle(10,10,10).generateTexture('orbiter', 20, 20);
+            gfx.clear().fillStyle(0xffffff).fillTriangle(0,16, 8,0, 16,16).generateTexture('missile', 16, 16);
+            gfx.clear().fillStyle(0xffffff).fillRect(0,0,4,4).generateTexture('particle', 4, 4);
+
+            this.load.audio('shoot_sfx','res/shouqiang.wav');
+            this.load.audio('minigun_sfx','res/jiatelin.mp3');
+            this.load.audio('shotgun_sfx','res/xiandan.mp3');
+            this.load.audio('blade_sfx','res/dao.mp3');
+            this.load.audio('hit_sfx','res/hit.mp3');
+            this.load.audio('explosion_sfx','res/explosion.mp3');
+            this.load.audio('thunder_sfx','res/dalei.mp3');
+            this.load.audio('BOSS_sfx','res/BOSS.mp3');
+            this.load.audio('boss1_sfx','res/boss1.mp3');
+            this.load.audio('boss2_sfx','res/boss2.mp3');
+            this.load.audio('boss3_sfx','res/boss3.mp3');
+             //新增：加载加特林循环音效（如果需要单独的音效）
+            this.load.audio('minigun_loop_sfx','res/jiatelin_loop.mp3');
+        }
+
+        function create() {
+            //background = this.add.tileSprite(512, 384, 1024, 768, 'star').setAlpha(0.3).setScrollFactor(0);
+            background = this.add.image(512, 384, 'gameBackground')
+            .setDisplaySize(1024*2, 768*2)  // 设置大小与游戏画布一致
+            .setAlpha(0.8)              // 设置透明度（0.8是建议值，可调整）
+            .setScrollFactor(0.1)       // 轻微视差效果
+            .setDepth(-1);              // 放在最底层
+            particles = this.add.particles(0, 0, 'particle', { speed: {min:50, max:200}, scale:{start:0.8, end:0}, blendMode:'ADD', lifespan:400, emitting:false });
+
+            player = this.physics.add.sprite(512, 384, 'player').setCollideWorldBounds(true).setDepth(20);
+    
+            bullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true, maxSize: 150 });
+            enemyBullets = this.physics.add.group({ classType: EnemyBullet, runChildUpdate: true });
+            enemies = this.physics.add.group({ runChildUpdate: true }); 
+            xpOrbs = this.physics.add.group({ classType: XPOrb, runChildUpdate: true });
+            orbiters = this.physics.add.group(); 
+            missiles = this.physics.add.group({ classType: Missile, runChildUpdate: true });
+            damageTexts = this.add.group({ classType: DamageText, runChildUpdate: true });
+
+            
+            slashGraphics = this.add.graphics({ x: 0, y: 0 }).setDepth(25);
+            effectGraphics = this.add.graphics({ x: 0, y: 0 }).setDepth(19);
+            bossGraphics = this.add.graphics({ x: 0, y: 0 }).setDepth(15);
+
+            cursors = this.input.keyboard.createCursorKeys();
+            wasd = this.input.keyboard.addKeys('W,S,A,D');
+            keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+            this.time.addEvent({ delay: 1000, callback: onWaveTick, callbackScope: this, loop: true });
+
+            this.physics.add.overlap(bullets, enemies, hitEnemyWithBullet, null, this);
+            this.physics.add.overlap(orbiters, enemies, hitEnemyWithOrbiter, null, this);
+            this.physics.add.overlap(missiles, enemies, hitEnemyWithMissile, null, this);
+            this.physics.add.overlap(player, enemies, hitPlayerCollision, null, this);
+            this.physics.add.overlap(player, enemyBullets, hitPlayerBullet, null, this);
+
+            createUI(this);
+            // 添加键盘切换射击模式
+            this.input.keyboard.on('keydown-M', () => {
+                if (shootingMode === 'auto') {
+                    shootingMode = 'manual';
+                    showModeNotification(this, '切换到手动射击模式');
+                } else {
+                    shootingMode = 'auto';
+                    showModeNotification(this, '切换到自动射击模式');
+                }
+            });
+            
+            // 显示模式专属提示
+            if (gameMode.isDaily) {
+                showWaveText(this, `每日挑战: ${gameMode.challenge.name}`);
+                this.time.delayedCall(1500, () => {
+                    showWaveText(this, gameMode.challenge.description);
+                });
+            } else {
+                showWaveText(this, "WAVE 1");
+            }
+            
+            soundManager.play('waveStart');
+        }
+
+        function update(time, delta) {
+            if (isGameOver || isPaused) return;
+            gameTime += delta;
+
+            handlePlayerMovement(time);
+            
+            if (player.body.velocity.x !== 0 || player.body.velocity.y !== 0) {
+                 background.x -= player.body.velocity.x * 0.002;
+                background.y -= player.body.velocity.y * 0.002;
+            }
+            
+            let mouseAngle = Phaser.Math.Angle.Between(player.x, player.y, this.input.activePointer.x, this.input.activePointer.y);
+            player.setRotation(mouseAngle);
+
+            handleWeapons(this, time, mouseAngle);
+            handleSkills(this, time);
+
+            manageSpawning(this, delta);
+            enemies.children.iterate(e => { if(e && e.active && e.aiUpdate) e.aiUpdate(time, delta, player); });
+            
+            xpOrbs.children.iterate(orb => {
+                if (orb && orb.active) {
+                    let dist = Phaser.Math.Distance.Between(player.x, player.y, orb.x, orb.y);
+                    if (dist < playerStats.magnetRange) this.physics.moveToObject(orb, player, 600);
+                    else orb.setVelocity(0);
+                    if (dist < 30) collectXP(this, orb);
+                }
+            });
+
+            updateUI(time);
+            
+            effectGraphics.clear();
+            if (playerStats.auraLvl > 0) {
+                effectGraphics.fillStyle(0xaa00ff, 0.1 + Math.sin(time/200)*0.05);
+                effectGraphics.fillCircle(player.x, player.y, 150 * playerStats.areaSize);
+                effectGraphics.lineStyle(2, 0xaa00ff, 0.3);
+                effectGraphics.strokeCircle(player.x, player.y, 150 * playerStats.areaSize);
+            }
+            
+            handlePowerUp(time);
+        }
+
+        function handlePlayerMovement(time) {
+            player.setVelocity(0);
+            
+            let moveX = 0, moveY = 0;
+            if (cursors.left.isDown || wasd.A.isDown) moveX = -1;
+            else if (cursors.right.isDown || wasd.D.isDown) moveX = 1;
+            if (cursors.up.isDown || wasd.W.isDown) moveY = -1;
+            else if (cursors.down.isDown || wasd.S.isDown) moveY = 1;
+
+            if (moveX !== 0 || moveY !== 0) {
+                let vec = new Phaser.Math.Vector2(moveX, moveY).normalize().scale(playerStats.speed);
+                player.setVelocity(vec.x, vec.y);
+            }
+            
+            if (Phaser.Input.Keyboard.JustDown(keySpace) && time > powerUp.cooldown) {
+                activatePowerUp(time);
+            }
+        }
+        
+        function activatePowerUp(time) {
+            powerUp.isActive = true;
+            powerUp.timer = time + powerUp.duration;
+            powerUp.cooldown = time + powerUp.maxCooldown;
+            playerStats.speed = playerStats.baseSpeed * powerUp.speedMult;
+            player.setTint(0xffff00);
+            particles.emitParticleAt(player.x, player.y, 20);
+            player.scene.cameras.main.shake(100, 0.01);
+            player.scene.cameras.main.flash(200, 255, 255, 0);
+            spawnDamageText(player.scene, player.x, player.y - 60, "POWER UP!", true, '#ffff00');
+            soundManager.play('powerUp');
+        }
+        
+        function handlePowerUp(time) {
+            if (powerUp.isActive) {
+                if (time > powerUp.timer) {
+                    powerUp.isActive = false;
+                    playerStats.speed = playerStats.baseSpeed;
+                    player.clearTint();
+                    spawnDamageText(player.scene, player.x, player.y - 60, "POWER DOWN", false, '#ff9900');
+                } else {
+                    if (Math.random() > 0.7) {
+                        particles.emitParticleAt(player.x + (Math.random()-0.5)*30, player.y + (Math.random()-0.5)*30, 1);
+                    }
+                }
+            }
+        }
+
+
+        function handleWeapons(scene, time, mouseAngle) {
+    let baseDelay = 250;
+    if (playerStats.weapon === 'minigun') baseDelay = 80;
+    if (playerStats.weapon === 'shotgun') baseDelay = 650;
+    if (playerStats.weapon === 'blade') baseDelay = 800;
+    
+    let fireRateMult = playerStats.fireRateMult;
+    if (powerUp.isActive) {
+        fireRateMult *= powerUp.fireRateMult;
+    }
+    
+    // === 关键修复：在切换武器时立即停止加特林音效 ===
+    if (playerStats.weapon !== 'minigun' && minigunSoundPlaying) {
+        stopMinigunSound(scene);
+    }
+    
+    // 处理近战武器（保持原有逻辑）
+    if (playerStats.weapon === 'blade') {
+        // 近战武器只受冷却时间控制
+        if (time > lastFired) {
+            performMeleeAttack(scene, mouseAngle);
+            lastFired = time + (baseDelay * fireRateMult);
+        }
+        return;
+    }
+    
+    // 处理射击武器（根据模式）
+    if (time > lastFired) {
+        let shouldFire = false;
+        
+        if (shootingMode === 'auto') {
+            // 自动模式：只要冷却时间到了就射击
+            shouldFire = true;
+        } else if (shootingMode === 'manual') {
+            // 手动模式：检查鼠标左键是否按下
+            const pointer = scene.input.activePointer;
+            if (pointer.isDown) {
+                shouldFire = true;
+            }
+        }
+        
+        if (shouldFire) {
+            // === 确保其他武器开始前加特林音效已停止 ===
+            if (playerStats.weapon !== 'minigun' && minigunSoundPlaying) {
+                stopMinigunSound(scene);
+            }
+            fireMainWeapon(scene);
+            lastFired = time + (baseDelay * fireRateMult);
+        }
+    }
+    
+    // === 修复：在加特林武器时检查是否需要启动音效 ===
+    if (playerStats.weapon === 'minigun' && time > lastFired - 50 && !minigunSoundPlaying) {
+        startMinigunSound(scene);
+    }
+    
+    // === 修复：当不是加特林时确保音效停止 ===
+    if (playerStats.weapon !== 'minigun' && minigunSoundPlaying) {
+        stopMinigunSound(scene);
+    }
+
+    if (playerStats.missileLevel > 0 && time > missileTimer) {
+        fireMissile(scene);
+        missileTimer = time + Math.max(400, 2000 - (playerStats.missileLevel * 200));
+    }
+    if (playerStats.orbitCount > 0) Phaser.Actions.RotateAroundDistance(orbiters.getChildren(), {x:player.x, y:player.y}, 0.05, 120);
+}
+
+
+
+        function handleSkills(scene, time) {
+            if (playerStats.thunderLvl > 0 && time > thunderTimer) {
+                let damage = 150 * playerStats.thunderLvl * playerStats.damageMult;
+                if (powerUp.isActive) damage *= powerUp.damageMult;
+                
+                let visibleEnemies = enemies.getChildren().filter(e => e.active && scene.cameras.main.worldView.contains(e.x, e.y));
+                if (visibleEnemies.length > 0) {
+                    let target = Phaser.Utils.Array.GetRandom(visibleEnemies);
+                    let lightning = scene.add.graphics();
+                    lightning.lineStyle(4, 0x44aaff);
+                    lightning.beginPath(); lightning.moveTo(target.x, target.y - 600); lightning.lineTo(target.x, target.y); lightning.strokePath();
+                    scene.tweens.add({targets: lightning, alpha: 0, duration: 300, onComplete: () => lightning.destroy()});
+                    scene.cameras.main.shake(50, 0.005);
+                    damageEnemy(target, damage);
+                    spawnDamageText(scene, target.x, target.y, Math.floor(damage), true, '#44aaff');
+                    if (scene.cache.audio.exists('thunder_sfx')) {
+                        scene.sound.play('thunder_sfx', { volume: 0.6 });
+                    } else {
+                        soundManager.play('thunder');  // 回退到合成音效
+                    }
+                }
+                thunderTimer = time + (1500 / (1 + playerStats.thunderLvl * 0.2));
+            }
+            if (playerStats.auraLvl > 0 && time > auraTimer) {
+                let range = 150 * playerStats.areaSize;
+                let damage = 15 * playerStats.auraLvl * playerStats.damageMult;
+                if (powerUp.isActive) damage *= powerUp.damageMult;
+                
+                let targets = enemies.getChildren();
+                for (let i=0; i<targets.length; i++) {
+                    let e = targets[i];
+                    if (e.active && Phaser.Math.Distance.Between(player.x, player.y, e.x, e.y) < range) {
+                        damageEnemy(e, damage);
+                        if (Math.random() > 0.8) spawnDamageText(scene, e.x, e.y-20, Math.floor(damage), false, '#aa00ff');
+                    }
+                }
+                auraTimer = time + 250; 
+            }
+        }
+
+        
+        function performMeleeAttack(scene, angle) {
+    // === 添加检查：确保不在冷却中 ===
+    if (scene.time.now < lastFired - 100) return;
+    
+    let reach = 200 * playerStats.areaSize;
+    let spread = Math.PI * 0.65;
+    let damage = 80 * playerStats.damageMult;
+    if (powerUp.isActive) damage *= powerUp.damageMult;
+    
+    let knockbackForce = 350;
+    
+    // 清除之前的图形
+    slashGraphics.clear(); 
+    
+    // 绘制新的攻击范围
+    slashGraphics.fillStyle(0xff3300, 0.5); 
+    slashGraphics.slice(player.x, player.y, reach, angle - spread/2, angle + spread/2, false); 
+    slashGraphics.fillPath();
+    
+    // 淡出效果
+    scene.tweens.add({ 
+        targets: slashGraphics, 
+        alpha: 0, 
+        duration: 150, 
+        onComplete: () => { 
+            slashGraphics.clear(); 
+            slashGraphics.alpha = 1; 
+        }
+    });
+    
+    // 屏幕震动
+    scene.cameras.main.shake(120, 0.015);
+    
+    // 处理敌人伤害
+    let targets = enemies.getChildren(); 
+    for (let i = 0; i < targets.length; i++) {
+        let enemy = targets[i];
+        if (!enemy || !enemy.active) continue;
+        let dist = Phaser.Math.Distance.Between(player.x, player.y, enemy.x, enemy.y);
+        if (dist <= reach) {
+            let angleToEnemy = Phaser.Math.Angle.Between(player.x, player.y, enemy.x, enemy.y);
+            if (Math.abs(Phaser.Math.Angle.Wrap(angleToEnemy - angle)) < spread / 2) {
+                if(enemy.body && enemy.type !== 'boss') {
+                    let kbAngle = angleToEnemy;
+                    enemy.x += Math.cos(kbAngle) * knockbackForce * 0.1; 
+                    enemy.y += Math.sin(kbAngle) * knockbackForce * 0.1;
+                }
+                spawnDamageText(scene, enemy.x, enemy.y, Math.floor(damage), true, '#ffaa00');
+                particles.emitParticleAt(enemy.x, enemy.y, 8);
+                damageEnemy(enemy, damage);
+            }
+        }
+    }
+    
+    // 播放音效
+    if (scene.cache.audio.exists('blade_sfx')) {
+        scene.sound.play('blade_sfx', { volume: 0.4 });
+    } else {
+        soundManager.play('blade');
+    }
+}
+
+        // === 新增：加特林音效控制函数 ===
+function startMinigunSound(scene) {
+    if (minigunSoundPlaying || !scene.sound) return;
+    
+    if (scene.cache.audio.exists('minigun_sfx')) {
+        // 播放循环音效
+        minigunSound = scene.sound.add('minigun_sfx', {
+            volume: 0.3,
+            loop: true,  // 关键：设置为循环播放
+            rate: 1.0
+        });
+        minigunSound.play();
+        minigunSoundPlaying = true;
+        minigunFireCount = 0;
+        console.log("加特林音效开始循环播放");
+    } else {
+        // 如果没有自定义音效，使用合成音效（但不能循环）
+        soundManager.play('minigun');
+    }
+}
+
+
+    function stopMinigunSound(scene) {
+    if (minigunSound && minigunSoundPlaying) {
+        console.log("停止加特林音效");
+        // 立即停止音效，不使用淡出
+        try {
+            if (minigunSound.isPlaying) {
+                minigunSound.stop();
+            }
+            minigunSound.destroy();
+        } catch (e) {
+            console.warn("停止加特林音效时出错:", e);
+        }
+        minigunSound = null;
+        minigunSoundPlaying = false;
+        minigunFireCount = 0;
+    } else {
+        minigunSoundPlaying = false;
+        minigunFireCount = 0;
+    }
+}
+// === 新增结束 ===
+        function fireMainWeapon(scene) {
+            const baseAngle = player.rotation;
+            let damage = 25, speed = 700;
+            let offsets = [0];
+            let spread = 0;
+            if (playerStats.weapon === 'shotgun') { 
+                offsets = [-0.25, -0.12, 0, 0.12, 0.25]; 
+                damage = 18; 
+                speed = 550; 
+                if (scene.cache.audio.exists('shotgun_sfx')) {
+                    scene.sound.play('shotgun_sfx', { volume: 0.4 });
+                } else {
+                    soundManager.play('shotgun');  // 回退到合成音效
+                    }
+            }
+            else if (playerStats.weapon === 'minigun') { 
+                damage = 12; 
+                speed = 900; 
+                spread = 0.15; 
+                if (!minigunSoundPlaying) {
+            startMinigunSound(scene);
+        }
+        
+        // 增加射击计数
+        minigunFireCount++;
+        // 如果射击次数达到一定数量，可以调整音效
+        if (minigunFireCount % 10 === 0 && minigunSound) {
+            // 可以在这里调整音效音量或音调
+            minigunSound.setRate(1.0 + (minigunFireCount % 20) * 0.05);
+        }
+            }
+            else if (playerStats.weapon === 'blade') {
+            }
+            else {
+                if (scene.cache.audio.exists('shoot_sfx')) {
+                    scene.sound.play('shoot_sfx', { volume: 0.4 });
+                } else {
+                    soundManager.play('shoot');  // 回退到合成音效
+                    }
+            }
+            
+            for(let i=1; i<=playerStats.projectileCount; i++) { offsets.push(i*0.1); offsets.push(-i*0.1); }
+            damage *= playerStats.damageMult;
+            if (powerUp.isActive) damage *= powerUp.damageMult;
+            
+            offsets.forEach(ang => {
+                let b = bullets.get();
+                let finalAngle = baseAngle + ang + (Math.random()-0.5)*spread;
+                if(b) b.fire(player.x, player.y, finalAngle, speed, damage, playerStats.penetration, playerStats.ricochet);
+            });
+        }
+
+        function spawnDamageText(scene, x, y, text, isBig, color='#ffffff') {
+            let t = damageTexts.get();
+            if(t) t.show(x, y, text, isBig, color);
+        }
+
+        function damageEnemy(enemy, amt) {
+            if (!enemy.active) return;
+            if (playerStats.executeThreshold > 0 && enemy.type !== 'boss') {
+                if (enemy.hp < enemy.maxHp * playerStats.executeThreshold) {
+                    amt = enemy.hp + 9999; 
+                    spawnDamageText(enemy.scene, enemy.x, enemy.y - 30, "EXECUTE!", true, '#ff0000');
+                }
+            }
+            enemy.hp -= amt;
+            enemy.setTint(0xff0000);
+            enemy.scene.time.delayedCall(50, ()=> { if(enemy.active) enemy.clearTint(); });
+            if (enemy.scene.cache.audio.exists('hit_sfx')) {
+        enemy.scene.sound.play('hit_sfx', { volume: 0.3 });
+    } else {
+        soundManager.play('hit');
+    }
+            if (enemy.hp <= 0) {
+                enemiesKilled++; // 新增：统计杀敌数
+                if (playerStats.lifesteal > 0 && playerStats.hp < playerStats.maxHp) {
+                    let healAmt = playerStats.maxHp * playerStats.lifesteal;
+                    updateHealth(healAmt);
+                    spawnDamageText(enemy.scene, player.x, player.y - 40, "+" + Math.floor(healAmt), false, '#00ff00');
+                }
+                if (enemy.type === 'boss') {
+                    isBossWave = false; 
+                    ui.bossContainer.setVisible(false);
+                    bossGraphics.clear();
+                    enemy.scene.cameras.main.shake(1000, 0.03);
+                    // 新增：BOSS战后恢复音乐音量
+                    soundManager.setBackgroundMusicVolume(0.1);
+                    for(let i=0; i<50; i++) { 
+                        let xp = xpOrbs.get(); 
+                        if(xp) xp.spawn(enemy.x+(Math.random()-0.5)*150, enemy.y+(Math.random()-0.5)*150, 100); 
+                    }
+                    showWaveConfirmDialog(enemy.scene);
+                    if (enemy.scene.cache.audio.exists('explosion_sfx')) {
+                enemy.scene.sound.play('explosion_sfx', { volume: 0.6 });
+            } else {
+                soundManager.play('explosion');
+            }
+                } else {
+                    if (Math.random() < 0.7) { 
+                        let xp = xpOrbs.get(); 
+                        if(xp) xp.spawn(enemy.x, enemy.y, enemy.xp || 10); 
+                    }
+                    if (enemy.scene.cache.audio.exists('explosion_sfx')) {
+                enemy.scene.sound.play('explosion_sfx', { volume: 0.5 });
+            } else {
+                soundManager.play('explosion');
+            }
+                }
+                particles.emitParticleAt(enemy.x, enemy.y, 10);
+                enemy.destroy();
+            }
+        }
+        
+        function updateHealth(amount) { playerStats.hp = Math.min(playerStats.hp + amount, playerStats.maxHp); }
+
+        function takeDamage(scene, amt) {
+            if (isGameOver || playerStats.invulnerable || powerUp.isActive) return;
+            playerStats.hp -= amt;
+            playerStats.invulnerable = true; 
+            // 如果正在使用加特林，停止音效
+            if (playerStats.weapon === 'minigun' && minigunSoundPlaying) {
+                stopMinigunSound(scene);
+            }
+            
+            scene.tweens.add({
+                targets: player, alpha: 0.2, duration: 100, yoyo: true, repeat: 2,
+                onComplete: () => { player.alpha = 1; playerStats.invulnerable = false; }
+            });
+            scene.cameras.main.shake(200, 0.015);
+            player.setTint(0xff0000);
+            scene.time.delayedCall(150, ()=> player.clearTint());
+            scene.cameras.main.flash(200, 100, 0, 0);
+            if(playerStats.hp <= 0) {
+                isGameOver = true; 
+                scene.physics.pause(); 
+                player.setTint(0x555555); 
+                if (minigunSoundPlaying) {
+                stopMinigunSound(scene);
+                }
+                soundManager.pauseBackgroundMusic();
+                ui.gameOverText.setVisible(true); 
+                
+                // 新增：游戏结束显示分数和提交
+                const finalScore = calculateScore(wave, gameTime, enemiesKilled, gameMode.isDaily);
+                ui.finalScoreText = scene.add.text(config.width/2, 400, 
+                    `最终分数: ${finalScore}\n波次: ${wave}\n杀敌数: ${enemiesKilled}`, 
+                    {fontSize:'32px', color:'#ffff00', stroke:'#000', strokeThickness:4, align:'center'})
+                    .setOrigin(0.5).setVisible(true).setScrollFactor(0);
+                
+                // 显示名字输入框
+                const nameInput = document.getElementById('nameInput');
+                nameInput.style.display = 'block';
+                nameInput.value = localStorage.getItem('playerName') || '匿名玩家';
+                
+                // 按Enter提交分数
+                const submitScore = () => {
+                    const name = nameInput.value.trim() || '匿名玩家';
+                    localStorage.setItem('playerName', name);
+                    leaderboardManager.addScore(name, finalScore, wave, gameMode.isDaily);
+                    nameInput.style.display = 'none';
+                    ui.finalScoreText.setText(`分数已提交！\n${name}: ${finalScore}`);
+                    
+                    // 3秒后自动刷新页面或显示排行榜
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                };
+                
+                nameInput.focus();
+                nameInput.onkeyup = (e) => {
+                    if (e.key === 'Enter') submitScore();
+                };
+                
+                // 点击按钮提交
+                ui.submitBtn = scene.add.text(config.width/2, 500, '按Enter提交分数', 
+                    {fontSize:'24px', color:'#ff9900', fontStyle:'bold'})
+                    .setOrigin(0.5).setVisible(true).setScrollFactor(0);
+            }
+        }
+
+        function hitEnemyWithBullet(bullet, enemy) {
+            if (!bullet.active || !enemy.active || bullet.hitList.includes(enemy)) return;
+            bullet.hitList.push(enemy);
+            damageEnemy(enemy, bullet.damage);
+            spawnDamageText(enemy.scene, enemy.x, enemy.y-20, Math.floor(bullet.damage), false);
+            if (bullet.ricochetCount > 0) {
+                let next = getNearestEnemy(enemy, bullet.hitList);
+                if (next) {
+                    bullet.ricochetCount--; bullet.body.reset(enemy.x, enemy.y);
+                    let ang = Phaser.Math.Angle.Between(enemy.x, enemy.y, next.x, next.y);
+                    bullet.scene.physics.velocityFromRotation(ang, 500, bullet.body.velocity); bullet.lifespan = 400; return;
+                }
+            }
+            if (bullet.penCount > 0) { bullet.penCount--; bullet.setAlpha(0.6); } else { bullet.setActive(false).setVisible(false); }
+        }
+        
+        function hitEnemyWithOrbiter(orb, enemy) { 
+            if(enemy.active) { 
+                let damage = 3 * playerStats.damageMult;
+                if (powerUp.isActive) damage *= powerUp.damageMult;
+                damageEnemy(enemy, damage); 
+            } 
+        }
+        
+        function hitEnemyWithMissile(m, e) { 
+            if(m.active && e.active) { 
+                let damage = 80 * playerStats.damageMult;
+                if (powerUp.isActive) damage *= powerUp.damageMult;
+                m.explode(); 
+                damageEnemy(e, damage); 
+                spawnDamageText(e.scene, e.x, e.y, Math.floor(damage), true, '#ffaa00'); 
+                soundManager.play('missile');
+            } 
+        }
+        
+        function hitPlayerCollision(p, e) { 
+            if (powerUp.isActive) return;
+            let dmg = 15;
+            if (e.type === 'boss') dmg = 40;
+            takeDamage(p.scene, dmg); 
+            if (e.type !== 'boss') {
+                let ang = Phaser.Math.Angle.Between(p.x, p.y, e.x, e.y); 
+                e.x+=Math.cos(ang)*20; e.y+=Math.sin(ang)*20; 
+            }
+        }
+        
+        function hitPlayerBullet(p, b) { 
+            if (powerUp.isActive) return;
+            b.setActive(false).setVisible(false); 
+            takeDamage(p.scene, 15); 
+        }
+
+        function fireMissile(scene) {
+            let count = 1 + Math.floor(playerStats.missileLevel / 3);
+            for(let i=0; i<count; i++) {
+                let target = null, maxHp = -1;
+                enemies.children.iterate(e => { if(e.active && e.hp > maxHp && Phaser.Math.Distance.Between(player.x,player.y,e.x,e.y) < 600) { maxHp = e.hp; target = e; } });
+                if (target) { 
+                    let m = missiles.get(); 
+                    if(m) scene.time.delayedCall(i*100, ()=>{ 
+                        if(m.active) m.launch(player.x, player.y, target); 
+                        soundManager.play('missile');
+                    }); 
+                }
+            }
+        }
+        
+        function updateOrbiters() {
+            orbiters.clear(true, true);
+            for(let i=0; i<playerStats.orbitCount; i++) { 
+                let o = orbiters.create(player.x, player.y, 'orbiter'); 
+                let rad = (Math.PI*2/playerStats.orbitCount)*i; 
+                o.startAngle = rad; 
+            }
+        }
+        
+        function showWaveConfirmDialog(scene) {
+            isPaused = true;
+            scene.physics.pause();
+            pendingWaveStart = true;
+            
+            let nextWave = wave + 1;
+            let waveText = `第 ${nextWave} 波`;
+            ui.waveConfirmWaveText.setText(`是否继续挑战${waveText}？`);
+            
+            ui.waveConfirmContainer.setVisible(true);
+        }
+        
+        function onWaveTick() { 
+            if (isPaused || isGameOver || isBossWave || pendingWaveStart) return; 
+            waveTimeLeft--; 
+            if (waveTimeLeft <= 0) {
+                showWaveConfirmDialog(this);
+            }
+        }
+        
+        function startNextWave(scene) {
+            wave++;
+            if (wave === 5||(wave>=5&&wave%5===0)) { 
+                isBossWave = true; 
+                waveTimeLeft = 999; 
+                enemies.clear(true, true); 
+                enemyBullets.clear(true, true); 
+                spawnBoss(scene); 
+                if(wave === 5) showWaveText(scene, "BOSS降临！！！"); 
+                scene.cameras.main.shake(500, 0.02); 
+                //soundManager.play('bossAppear');
+            } else { 
+                waveTimeLeft = 30 + wave; 
+                showWaveText(scene, "波次： " + wave); 
+                soundManager.play('waveStart');
+            }
+        }
+        
+        function manageSpawning(scene, delta) {
+            if (isPaused) return;
+            if (isBossWave) return;
+            let spawnDelay = Math.max(100, 800 - (wave * 50)); spawnTimer += delta;
+            if (spawnTimer > spawnDelay) { spawnTimer = 0; let count = 1 + Math.floor(wave / 5); for(let i=0; i<count; i++) spawnEnemy(scene); }
+        }
+        
+        function spawnEnemy(scene) {
+            let pos = getEdgePos(); let rand = Math.random(); let type = 'basic';
+            if (wave >= 4 && rand > 0.8) type = 'shooter'; else if (wave >= 3 && rand > 0.7) type = 'tank'; else if (wave >= 2 && rand > 0.5) type = 'fast';
+            createEnemy(scene, pos.x, pos.y, type);
+        }
+        
+        function createEnemy(scene, x, y, type) {
+            let texture = 'enemy_' + type; let e = enemies.create(x, y, texture); e.type = type; e.lastShot = 0;
+            if (type === 'basic') { e.hp = 30 + wave*8; e.spd = 120 * playerStats.enemySpeedMult; e.xp = 5+5*(wave*(1+0.02)); }
+            if (type === 'fast') { e.hp = 20 + wave*5; e.spd = 260 * playerStats.enemySpeedMult; e.xp = 8+5*(wave*(1+0.02)); }
+            if (type === 'tank') { e.hp = 150 + wave*25; e.spd = 70 * playerStats.enemySpeedMult; e.xp = 20+5*(wave*(1+0.02)); e.setScale(1.2); }
+            if (type === 'shooter') { e.hp = 50 + wave*8; e.spd = 100 * playerStats.enemySpeedMult; e.xp = 12+5*(wave*(1+0.02)); }
+            e.maxHp = e.hp;
+            e.aiUpdate = function(time, delta, player) {
+                if (!this.active) return;
+                let dist = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+                let angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+                this.rotation = angle;
+                if (this.type === 'shooter') {
+                    if (dist > 350) scene.physics.moveToObject(this, player, this.spd); else if (dist < 200) scene.physics.moveToObject(this, player, -this.spd); else this.body.setVelocity(0);
+                    if (time > this.lastShot && dist < 600) { let b = enemyBullets.get(); if(b) { b.fire(this.x, this.y, angle, 300); this.lastShot = time + 2500; } }
+                } else { scene.physics.moveToObject(this, player, this.spd); }
+            }
+        }
+
+        function spawnBoss(scene) {
+            let bossHp = 15000 + (wave * 3000);
+            let boss = enemies.create(512, -150, 'enemy_boss'); 
+            boss.hp = bossHp; boss.maxHp = bossHp; boss.type = 'boss'; 
+            boss.setCollideWorldBounds(true); boss.setDepth(30); boss.setDrag(500);
+            ui.bossContainer.setVisible(true); 
+            // 新增：BOSS战时增强音乐音量
+            // ★ 新增：播放自己导入的 BOSS 出场音效
+            if (scene.cache.audio.exists('BOSS_sfx')) {
+                // 优先用 Phaser 自带音频系统
+                scene.sound.play('BOSS_sfx', { volume: 3.0 });
+            } else {
+                // 如果没加载到，就用 soundManager 兜底
+                soundManager.play('bossAppear');
+            }
+            //soundManager.setBackgroundMusicVolume(0.1);
+            boss.state = 'enter'; 
+            boss.stateTimer = 0;
+            boss.attackCount = 0;
+
+            boss.aiUpdate = function(time, delta, player) {
+                if (!this.active) return;
+                this.stateTimer += delta;
+                ui.bossFill.width = 596 * Math.max(0, (this.hp / this.maxHp));
+                bossGraphics.clear();
+
+                switch (this.state) {
+                    case 'enter':
+                        this.y += 2; if (this.y > 150) { this.state = 'idle'; this.stateTimer = 0; }
+                        break;
+                    
+                    case 'idle':
+                        scene.physics.moveToObject(this, player, 80);
+                        this.rotation = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+                        if (this.stateTimer > 1500) {
+                            let rand = Math.random();
+                            if (rand < 0.4)
+                            {
+                                this.state = 'pre_charge';
+                                if (scene.cache.audio.exists('boss1_sfx')) {
+                                    scene.sound.play('boss1_sfx', { volume: 3.0 });
+                                }
+                            }
+                            else if (rand < 0.7)
+                            {
+                                this.state = 'barrage';
+                                if (scene.cache.audio.exists('boss2_sfx')) {
+                                    scene.sound.play('boss2_sfx', { volume: 3.0 });
+                                }
+                            } 
+                            else
+                            {
+                                this.state = 'summon';
+                                if (scene.cache.audio.exists('boss3_sfx')) {
+                                    scene.sound.play('boss3_sfx', { volume: 3.0 });
+                                }
+                            } 
+                            this.stateTimer = 0;
+                            this.body.setVelocity(0);
+                        }
+                        break;
+
+                    case 'pre_charge':
+                        if (this.stateTimer === delta) {
+                             this.targetX = player.x; this.targetY = player.y;
+                        }
+                        let angle = Phaser.Math.Angle.Between(this.x, this.y, this.targetX, this.targetY);
+                        this.rotation = angle;
+                        bossGraphics.lineStyle(4, 0xff0000, 0.6);
+                        bossGraphics.beginPath(); bossGraphics.moveTo(this.x, this.y); bossGraphics.lineTo(this.targetX + Math.cos(angle)*500, this.targetY + Math.sin(angle)*500); bossGraphics.strokePath();
+                        
+                        if (this.stateTimer > 1000) { this.state = 'charging'; this.stateTimer = 0; scene.physics.moveTo(this, this.targetX, this.targetY, 900); }
+                        break;
+                    
+                    case 'charging':
+                        this.rotation += 0.5;
+                        if (this.stateTimer > 800) { this.body.setVelocity(0); this.state = 'idle'; this.stateTimer = 0; }
+                        break;
+
+                    case 'barrage':
+                        if (this.stateTimer % 100 < 20) {
+                            let baseAng = this.stateTimer * 0.003;
+                            for(let i=0; i<4; i++) { 
+                                let b = enemyBullets.get(); 
+                                if(b) b.fire(this.x, this.y, baseAng + (i * (Math.PI/2)), 300); 
+                            }
+                        }
+                        if (this.stateTimer > 2000) { this.state = 'idle'; this.stateTimer = 0; }
+                        break;
+
+                    case 'summon':
+                        scene.cameras.main.shake(100, 0.01);
+                        for(let i=0; i<4; i++) {
+                            createEnemy(scene, this.x + (Math.random()-0.5)*200, this.y + (Math.random()-0.5)*200, 'fast');
+                        }
+                        spawnDamageText(scene, this.x, this.y-60, "MINIONS!", true, '#ff00ff');
+                        this.state = 'idle'; this.stateTimer = 0;
+                        break;
+                }
+            }
+        }
+
+        function getNearestEnemy(src, exclude) { 
+            let c=null, min=400; 
+            enemies.children.iterate(e => { 
+                if(e.active && e!==src && !exclude.includes(e)) { 
+                    let d=Phaser.Math.Distance.Between(src.x,src.y,e.x,e.y); 
+                    if(d<min) { min=d; c=e; } 
+                } 
+            }); 
+            return c; 
+        }
+        
+        function getEdgePos() { 
+            let p = 50; let w = config.width, h = config.height; 
+            if (Math.random()<0.5) return {x:Math.random()<0.5?-p:w+p, y:Math.random()*h}; 
+            return {x:Math.random()*w, y:Math.random()<0.5?-p:h+p}; 
+        }
+
+        class Bullet extends Phaser.Physics.Arcade.Sprite { 
+            constructor(s,x,y){super(s,x,y,'bullet');} 
+            fire(x,y,r,s,d,p,ri){
+                this.body.reset(x,y);
+                this.setActive(true).setVisible(true).setAlpha(1);
+                this.setRotation(r);
+                this.scene.physics.velocityFromRotation(r,s,this.body.velocity);
+                this.damage=d;
+                this.penCount=p;
+                this.ricochetCount=ri;
+                this.hitList=[];
+                this.lifespan=1500;
+            } 
+            preUpdate(t,d){
+                super.preUpdate(t,d);
+                this.lifespan-=d;
+                if(this.lifespan<=0||!this.scene.cameras.main.worldView.contains(this.x,this.y)) this.setActive(false).setVisible(false);
+            } 
+        }
+        
+        class EnemyBullet extends Phaser.Physics.Arcade.Sprite { 
+            constructor(s,x,y){super(s,x,y,'bullet_enemy');} 
+            fire(x,y,r,s){
+                this.body.reset(x,y);
+                this.setActive(true).setVisible(true);
+                this.setRotation(r);
+                this.scene.physics.velocityFromRotation(r,s,this.body.velocity);
+            } 
+            preUpdate(t,d){
+                super.preUpdate(t,d);
+                if(!this.scene.cameras.main.worldView.contains(this.x,this.y)) this.setActive(false).setVisible(false);
+            } 
+        }
+        
+        class Missile extends Phaser.Physics.Arcade.Sprite { 
+            constructor(s,x,y){super(s,x,y,'missile');} 
+            launch(x,y,t){
+                this.body.reset(x,y);
+                this.setActive(true).setVisible(true);
+                this.target=t;
+                this.life=3000;
+                let r=Math.random()*Math.PI*2;
+                this.scene.physics.velocityFromRotation(r, 200, this.body.velocity);
+            } 
+            preUpdate(t,d){
+                super.preUpdate(t,d);
+                this.life-=d;
+                if(this.life<=0) this.explode();
+                else if(this.target&&this.target.active){
+                    let ta=Phaser.Math.Angle.Between(this.x,this.y,this.target.x,this.target.y);
+                    let cr=this.body.velocity.angle();
+                    let nr=Phaser.Math.Angle.RotateTo(cr, ta, 0.1);
+                    this.scene.physics.velocityFromRotation(nr, 400, this.body.velocity);
+                    this.rotation=nr+1.57;
+                }
+            } 
+            explode(){
+                this.setActive(false).setVisible(false);
+                particles.emitParticleAt(this.x,this.y,20);
+            } 
+        }
+        
+        class XPOrb extends Phaser.Physics.Arcade.Sprite { 
+            constructor(s,x,y){super(s,x,y,'xp_orb');} 
+            spawn(x,y,v){
+                this.body.reset(x,y);
+                this.setActive(true).setVisible(true);
+                this.amount=v;
+                this.setVelocity((Math.random()-0.5)*200,(Math.random()-0.5)*200);
+                this.setDrag(100);
+            } 
+        }
+        
+        class DamageText extends Phaser.GameObjects.Text { 
+            constructor(scene, x, y) { 
+                super(scene, x, y, '', { fontSize: '20px', fontStyle:'bold', stroke:'#000', strokeThickness:3 }); 
+                scene.add.existing(this); 
+            } 
+            show(x, y, amount, isBig, color='#ffffff') { 
+                this.setPosition(x, y); this.setText(amount); this.setColor(color); 
+                this.setFontSize(isBig ? '28px' : '20px'); 
+                this.setActive(true).setVisible(true).alpha = 1; 
+                this.scene.tweens.add({ targets: this, y: y - 40, alpha: 0, duration: 600, onComplete: () => this.setActive(false).setVisible(false) }); 
+            } 
+        }
+
+        function collectXP(scene, orb) { 
+            orb.setActive(false).setVisible(false); 
+            currentXP += orb.amount; 
+            if (currentXP >= neededXP) { 
+                currentXP -= neededXP; 
+                level++; 
+                neededXP = Math.floor(neededXP*1.4); 
+                pauseAndUpgrade(scene); 
+            } 
+        }
+
+        function createUI(scene) {
+            scene.add.rectangle(config.width/2, 20, config.width-100, 16, 0x222222).setStrokeStyle(2,0x666666).setScrollFactor(0);
+            ui.xpBar = scene.add.rectangle(55, 20, 0, 14, 0x00aaff).setOrigin(0,0.5).setScrollFactor(0);
+            ui.levelText = scene.add.text(50, 40, 'LV.1', {fontSize:'20px', fontStyle:'bold'}).setScrollFactor(0);
+            ui.hpText = scene.add.text(config.width-50, 40, '血量:100/100', {fontSize:'20px', color:'#0f0', fontStyle:'bold'}).setOrigin(1,0).setScrollFactor(0);
+            ui.waveText = scene.add.text(config.width/2, 50, '波次:1', {fontSize:'24px', color:'#fff'}).setOrigin(0.5).setScrollFactor(0);
+            ui.timerText = scene.add.text(config.width/2, 80, '30s', {fontSize:'18px', color:"#bbb"}).setOrigin(0.5).setScrollFactor(0);
+            
+            // 新增：模式指示器
+            if (gameMode.isDaily) {
+                ui.modeText = scene.add.text(config.width-20, 20, '每日挑战', 
+                    {fontSize:'16px', color:'#ff9900', fontStyle:'bold'})
+                    .setOrigin(1,0.5).setScrollFactor(0);
+            }
+            
+            scene.add.text(config.width/2, config.height - 40, '空格键开启5秒真男人,获得大幅增益效果！', {fontSize:'16px', color:'#888'}).setOrigin(0.5).setScrollFactor(0);
+                // === 新增：射击模式显示和提示 ===
+    ui.shootingModeText = scene.add.text(50, config.height - 60, `射击模式: ${shootingMode === 'auto' ? '自动' : '手动'}`, {
+        fontSize: '16px',
+        color: shootingMode === 'auto' ? '#00ff00' : '#00ccff',
+        fontStyle: 'bold'
+    }).setOrigin(0, 0.5).setScrollFactor(0);
+
+    // 添加提示文字
+    scene.add.text(config.width/2, config.height - 80, '按 M 键切换射击模式', {
+        fontSize: '14px',
+        color: '#ff9900'
+    }).setOrigin(0.5).setScrollFactor(0);
+    
+    // 继续原有的代码...
+    ui.powerUpBar = scene.add.rectangle(config.width/2 - 100, config.height - 20, 200, 8, 0xffff00).setOrigin(0,0.5).setScrollFactor(0);
+            ui.powerUpBar = scene.add.rectangle(config.width/2 - 100, config.height - 20, 200, 8, 0xffff00).setOrigin(0,0.5).setScrollFactor(0);
+            let bb = scene.add.rectangle(0,0,600,24,0x330000).setOrigin(0,0.5); 
+            let bf = scene.add.rectangle(0,0,600,24,0xff0000).setOrigin(0,0.5); 
+            let bt = scene.add.text(300,-25,'BOSS ENTITY',{fontSize:'20px', fontStyle:'bold', stroke:'#000', strokeThickness:4}).setOrigin(0.5);
+            ui.bossFill = bf; ui.bossContainer = scene.add.container(config.width/2 - 300, config.height - 100, [bb,bf,bt]).setVisible(false).setScrollFactor(0);
+            ui.gameOverText = scene.add.text(config.width/2, 300,'你死了！\n点击屏幕重新挑战',{fontSize:'60px',color:'#f00',stroke:'#fff',strokeThickness:4, align:'center'}).setOrigin(0.5).setVisible(false).setScrollFactor(0);
+            
+            // 新增：游戏结束时的分数显示
+            ui.finalScoreText = scene.add.text(0, 0, '', {fontSize:'32px', color:'#ffff00', stroke:'#000', strokeThickness:4, align:'center'})
+                .setOrigin(0.5).setVisible(false).setScrollFactor(0);
+            ui.submitBtn = scene.add.text(0, 0, '', {fontSize:'24px', color:'#ff9900', fontStyle:'bold'})
+                .setOrigin(0.5).setVisible(false).setScrollFactor(0);
+            
+            scene.input.on('pointerdown', () => { 
+                if (isGameOver && !ui.finalScoreText.visible) location.reload(); 
+            });
+            
+            ui.waveConfirmContainer = scene.add.container(0, 0).setVisible(false).setDepth(101).setScrollFactor(0);
+            ui.waveConfirmContainer.add(scene.add.rectangle(config.width/2, config.height/2, config.width, config.height, 0x000000, 0.9).setInteractive());
+            ui.waveConfirmContainer.add(scene.add.text(config.width/2, 150, '波次完成！', { fontSize: '60px', color: '#00ff00', fontStyle: 'bold', stroke:'#000', strokeThickness:4 }).setOrigin(0.5));
+            ui.waveConfirmWaveText = scene.add.text(config.width/2, 300, '', { fontSize: '36px', color: '#ffffff', stroke:'#000', strokeThickness:3 }).setOrigin(0.5);
+            ui.waveConfirmContainer.add(ui.waveConfirmWaveText);
+            
+            let confirmBtn = scene.add.rectangle(config.width/2 - 150, config.height/2 + 100, 200, 80, 0x00ff00).setStrokeStyle(4, 0xffffff).setInteractive({ useHandCursor: true });
+            let confirmText = scene.add.text(config.width/2 - 150, config.height/2 + 100, '继续', { fontSize: '32px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+            let cancelBtn = scene.add.rectangle(config.width/2 + 150, config.height/2 + 100, 200, 80, 0xff0000).setStrokeStyle(4, 0xffffff).setInteractive({ useHandCursor: true });
+            let cancelText = scene.add.text(config.width/2 + 150, config.height/2 + 100, '结束', { fontSize: '32px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+            
+            ui.waveConfirmContainer.add([confirmBtn, confirmText, cancelBtn, cancelText]);
+            
+            confirmBtn.on('pointerover', () => { confirmBtn.setScale(1.1); confirmBtn.fillColor = 0x00aa00; });
+            confirmBtn.on('pointerout', () => { confirmBtn.setScale(1); confirmBtn.fillColor = 0x00ff00; });
+            confirmBtn.on('pointerdown', () => {
+                ui.waveConfirmContainer.setVisible(false);
+                isPaused = false;
+                scene.physics.resume();
+                pendingWaveStart = false;
+                startNextWave(scene);
+            });
+            
+            cancelBtn.on('pointerover', () => { cancelBtn.setScale(1.1); cancelBtn.fillColor = 0xaa0000; });
+            cancelBtn.on('pointerout', () => { cancelBtn.setScale(1); cancelBtn.fillColor = 0xff0000; });
+            cancelBtn.on('pointerdown', () => {
+                isGameOver = true;
+                scene.physics.pause();
+                player.setTint(0x555555);
+                ui.gameOverText.setVisible(true);
+                ui.waveConfirmContainer.setVisible(false);
+            });
+            
+            createUpgradeMenu(scene);
+            
+            // 属性面板
+            ui.statsPanel = scene.add.rectangle(10, 10, 200, 140, 0x000000, 0.6)
+                .setOrigin(0, 0)
+                .setStrokeStyle(2, 0x444444)
+                .setScrollFactor(0)
+                .setDepth(50);
+
+            ui.statsTitle = scene.add.text(15, 15, '角色属性', {
+                fontSize: '16px',
+                color: '#ffaa00',
+                fontStyle: 'bold'
+            }).setOrigin(0, 0).setScrollFactor(0).setDepth(51);
+
+            ui.statsTexts = {
+                weapon: scene.add.text(15, 40, '', { fontSize: '14px', color: '#ffffff' }).setOrigin(0, 0).setScrollFactor(0).setDepth(51),
+                damage: scene.add.text(15, 60, '', { fontSize: '14px', color: '#ff4444' }).setOrigin(0, 0).setScrollFactor(0).setDepth(51),
+                speed: scene.add.text(15, 80, '', { fontSize: '14px', color: '#ffff00' }).setOrigin(0, 0).setScrollFactor(0).setDepth(51),
+                projectiles: scene.add.text(15, 100, '', { fontSize: '14px', color: '#00ffff' }).setOrigin(0, 0).setScrollFactor(0).setDepth(51),
+                skills: scene.add.text(15, 120, '', { fontSize: '14px', color: '#aa00ff' }).setOrigin(0, 0).setScrollFactor(0).setDepth(51)
+            };
+        }
+        
+        function updateUI(time) {
+            ui.xpBar.width = (config.width-110) * Math.min(currentXP/neededXP, 1); 
+            ui.levelText.setText(`LV.${level}`); 
+            ui.hpText.setText(`HP: ${Math.floor(playerStats.hp)}/${playerStats.maxHp}`);
+            
+            let powerUpP = 1;
+            if (time < powerUp.cooldown) {
+                powerUpP = 1 - (powerUp.cooldown - time) / powerUp.maxCooldown;
+            }
+            ui.powerUpBar.width = 200 * powerUpP;
+            ui.powerUpBar.fillColor = powerUpP >= 1 ? 0xffff00 : 0x555555;
+            
+            if (isBossWave) { 
+                ui.waveText.setText('BOSS BATTLE'); 
+                ui.waveText.setColor('#ff0000'); 
+                ui.timerText.setText(''); 
+            } else { 
+                ui.waveText.setText('波次 ' + wave); 
+                ui.waveText.setColor('#ffffff'); 
+                ui.timerText.setText(waveTimeLeft + 's'); 
+            }
+            
+            // 更新属性面板
+            const weaponNames = {
+                'pistol': '脉冲手枪',
+                'shotgun': '碎星霰弹',
+                'minigun': '暴雨加特林',
+                'blade': '光能战刃'
+            };
+
+            ui.statsTexts.weapon.setText(`武器: ${weaponNames[playerStats.weapon] || '未知'}`);
+            ui.statsTexts.damage.setText(`伤害: ${(playerStats.damageMult * 100).toFixed(0)}%`);
+            ui.statsTexts.speed.setText(`攻速: ${(1 / playerStats.fireRateMult).toFixed(2)}x`);
+            ui.statsTexts.projectiles.setText(`子弹: ${playerStats.projectileCount + 1}`);
+
+            // 技能摘要
+            let skills = [];
+            if (playerStats.thunderLvl > 0) skills.push(`雷${playerStats.thunderLvl}`);
+            if (playerStats.auraLvl > 0) skills.push(`场${playerStats.auraLvl}`);
+            if (playerStats.orbitCount > 0) skills.push(`盾${playerStats.orbitCount}`);
+            if (playerStats.missileLevel > 0) skills.push(`导${playerStats.missileLevel}`);
+            if (playerStats.lifesteal > 0) skills.push('吸血');
+
+            ui.statsTexts.skills.setText(`技能: ${skills.join(' ') || '无'}`);
+            // 更新射击模式显示
+            ui.shootingModeText?.setText(`射击模式: ${shootingMode === 'auto' ? '自动' : '手动'}`);
+            ui.shootingModeText?.setColor(shootingMode === 'auto' ? '#00ff00' : '#00ccff');
+        }
+        
+            function showModeNotification(scene, message) {
+            // 获取游戏配置
+            const gameWidth = scene.sys.game.config.width;
+            const gameHeight = scene.sys.game.config.height;
+            
+            const text = scene.add.text(gameWidth/2, gameHeight/2, message, {
+                fontSize: '32px',
+                color: '#ffff00',
+                stroke: '#000',
+                strokeThickness: 4
+            }).setOrigin(0.5).setScrollFactor(0);
+            
+            scene.tweens.add({
+                targets: text,
+                y: gameHeight/2 - 50,
+                alpha: 0,
+                duration: 1500,
+                onComplete: () => text.destroy()
+            });
+        }
+
+        function showWaveText(scene, txt) { 
+            let t = scene.add.text(config.width/2, 200, txt, {fontSize:'64px', color:'#fff', fontStyle:'bold', stroke:'#f00', strokeThickness:6}).setOrigin(0.5).setAlpha(0).setScrollFactor(0); 
+            scene.tweens.add({targets:t, alpha:1, y:300, duration:500, hold:1000, yoyo:true, onComplete:()=>t.destroy()}); 
+        }
+        
+        function createUpgradeMenu(scene) {
+            ui.upgradeContainer = scene.add.container(0, 0).setVisible(false).setDepth(100).setScrollFactor(0);
+            ui.upgradeContainer.add(scene.add.rectangle(config.width/2, config.height/2, config.width, config.height, 0x000000, 0.85).setInteractive());
+            ui.upgradeContainer.add(scene.add.text(config.width/2, 150, '已升级，少年选择你的属性！', { fontSize: '50px', color: '#ffaa00', fontStyle: 'bold', stroke:'#fff', strokeThickness:2 }).setOrigin(0.5));
+            ui.upgradeButtons = []; let startX = config.width/2 - 250;
+            for (let i = 0; i < 3; i++) {
+                let x = startX + i * 250, y = config.height/2;
+                let bg = scene.add.rectangle(x, y, 220, 350, 0x333333).setStrokeStyle(4, 0x888888);
+                let t = scene.add.text(x, y-120, '', { fontSize: '24px', color: '#fff', fontStyle: 'bold', align:'center', wordWrap:{width:200} }).setOrigin(0.5, 0);
+                let d = scene.add.text(x, y+20, '', { fontSize: '18px', color: '#ccc', align: 'center', wordWrap: { width: 200 } }).setOrigin(0.5);
+                let z = scene.add.zone(x, y, 220, 350).setInteractive({ useHandCursor: true });
+                z.on('pointerover', () => { bg.setStrokeStyle(6, 0xffff00); scene.tweens.add({targets:[bg,t,d], scale:1.05, duration:100}); });
+                z.on('pointerout', () => { bg.setStrokeStyle(4, 0x888888); scene.tweens.add({targets:[bg,t,d], scale:1, duration:100}); });
+                ui.upgradeContainer.add([bg, t, d, z]); ui.upgradeButtons.push({ bg: bg, title: t, desc: d, zone: z });
+            }
+        }
+        
+        function pauseAndUpgrade(scene) {
+            isPaused = true; scene.physics.pause(); ui.upgradeContainer.setVisible(true);
+            let pool = upgradePool.filter(u => !u.unique || (u.unique && u.condition()));
+            let choices = Phaser.Utils.Array.Shuffle(pool).slice(0, 3);
+            for(let i=0; i<3; i++) {
+                if(!choices[i]) { ui.upgradeButtons[i].bg.setVisible(false); continue; }
+                let btn = ui.upgradeButtons[i], opt = choices[i];
+                btn.bg.setVisible(true).setFillStyle(0x222222).setStrokeStyle(4, Phaser.Display.Color.HexStringToColor(opt.color).color);
+                btn.title.setText(opt.name).setColor(opt.color); btn.desc.setText(opt.desc);
+                btn.zone.off('pointerdown').on('pointerdown', () => { 
+                // === 新增：切换武器前停止加特林音效 ===
+                if (opt.id && opt.id.startsWith('wp_')) {
+                    stopMinigunSound(scene);
+                }
+                
+                opt.apply(); 
+                isPaused = false; 
+                scene.physics.resume(); 
+                ui.upgradeContainer.setVisible(false); 
+                scene.cameras.main.flash(200, 255, 255, 255); 
+                soundManager.play('levelUp');
+            });
+            }
+        }
+    }
+    // 页面可见性变化处理
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // 页面隐藏时暂停音乐
+        if (soundManager.bgmAudio && !soundManager.bgmAudio.paused) {
+            soundManager.pauseBackgroundMusic();
+        }
+    } else if (soundManager.bgmEnabled) {
+        // 页面显示时恢复音乐（如果游戏正在进行）
+        const gameCanvas = document.getElementById('gameCanvas');
+        if (gameCanvas.style.display === 'block' && soundManager.bgmAudio) {
+            soundManager.playBackgroundMusic();
+        }
+    }
+});
+</script>
+</body>
+</html>
