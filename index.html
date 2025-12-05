@@ -354,8 +354,8 @@
             this.audioContext = null;
             this.sounds = {};
             this.enabled = true;
-            this.bgmEnabled = true; // 新增：背景音乐开关
-            this.bgmAudio = null;   // 新增：背景音乐HTMLAudioElement
+            this.bgmEnabled = true;
+            this.bgmAudio = null;
             this.init();
         }
         
@@ -389,35 +389,29 @@
             this.sounds.background = this.createBackgroundSound();
         }
 
-        // 新增：初始化背景音乐
-            initBackgroundMusic() {
-                // 使用HTML5 Audio元素
-                this.bgmAudio = document.getElementById('bgm');
-                if (!this.bgmAudio) {
-                    this.bgmAudio = new Audio('抗日进行曲.mp3');
-                    this.bgmAudio.loop = true;
-                    this.bgmAudio.volume = 0.0005;
-                    this.bgmAudio.preload = 'auto';
-                }
+        initBackgroundMusic() {
+            this.bgmAudio = document.getElementById('bgm');
+            if (!this.bgmAudio) {
+                this.bgmAudio = new Audio('抗日进行曲.mp3');
+                this.bgmAudio.loop = true;
+                this.bgmAudio.volume = 0.0005;
+                this.bgmAudio.preload = 'auto';
             }
-            // 新增：设置背景音乐音量（0-1范围）
+        }
+        
         setBackgroundMusicVolume(volume) {
             if (this.bgmAudio) {
-                // 确保音量在0-1之间
                 const clampedVolume = Math.max(0, Math.min(1, volume));
                 this.bgmAudio.volume = clampedVolume;
-                // 保存当前音量
                 this.currentBgmVolume = clampedVolume;
                 console.log('背景音乐音量设置为:', clampedVolume);
             }
         }
 
-        // 新增：获取当前音量
         getBackgroundMusicVolume() {
             return this.bgmAudio ? this.bgmAudio.volume : 0.3;
         }
 
-        // 新增：调整音量（增加或减少百分比）
         adjustBackgroundMusicVolume(percentChange) {
             if (!this.bgmAudio) return;
             const currentVol = this.bgmAudio.volume;
@@ -426,33 +420,24 @@
             return newVol;
         }
 
-            // 新增：播放背景音乐
-            playBackgroundMusic() {
-                if (!this.bgmEnabled || !this.bgmAudio) return;
-                
-                const playPromise = this.bgmAudio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log('抗日进行曲开始播放');
-                    }).catch(error => {
-                        console.log('自动播放被阻止:', error);
-                    });
-                }
+        playBackgroundMusic() {
+            if (!this.bgmEnabled || !this.bgmAudio) return;
+            
+            const playPromise = this.bgmAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('抗日进行曲开始播放');
+                }).catch(error => {
+                    console.log('自动播放被阻止:', error);
+                });
             }
+        }
 
-            // 新增：暂停背景音乐
-            pauseBackgroundMusic() {
-                if (this.bgmAudio) {
-                    this.bgmAudio.pause();
-                }
+        pauseBackgroundMusic() {
+            if (this.bgmAudio) {
+                this.bgmAudio.pause();
             }
-
-            // 新增：设置背景音乐音量
-            setBackgroundMusicVolume(volume) {
-                if (this.bgmAudio) {
-                    this.bgmAudio.volume = Math.max(0, Math.min(1, volume));
-                }
-            }
+        }
         
         createShootSound() {
             return () => {
@@ -779,59 +764,56 @@
     }
 
     const soundManager = new SoundManager();
-    // === 新增：射击模式相关变量 ===
-let shootingMode = 'auto'; // 'auto' 或 'manual'
-let lastManualFireTime = 0;
+    let shootingMode = 'auto';
+    let lastManualFireTime = 0;
 
-// === 新增：显示射击模式选择的函数 ===
-function showShootingModeSelection(isDailyMode = false, challenge = null) {
-    const modeSelectionHTML = `
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:200;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-            <h2 style="color:#ffcc00;font-size:3rem;margin-bottom:2rem;">⚔️ 选择射击模式</h2>
-            <div style="display:flex;gap:2rem;margin-bottom:2rem;">
-                <button id="autoModeBtn" class="mode-btn" style="padding:20px 40px;font-size:1.8rem;background:linear-gradient(45deg,#8B0000,#B22222);border:3px solid #ffcc00;border-radius:10px;color:#ffcc00;cursor:pointer;transition:all 0.3s;">
-                    🎯 自动射击<br><small>鼠标指向自动射击</small>
-                </button>
-                <button id="manualModeBtn" class="mode-btn" style="padding:20px 40px;font-size:1.8rem;background:linear-gradient(45deg,#004488,#0066aa);border:3px solid #00ccff;border-radius:10px;color:#00ccff;cursor:pointer;transition:all 0.3s;">
-                    🖱️ 手动射击<br><small>鼠标左键点击射击</small>
-                </button>
+    function showShootingModeSelection(isDailyMode = false, challenge = null) {
+        const modeSelectionHTML = `
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:200;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+                <h2 style="color:#ffcc00;font-size:3rem;margin-bottom:2rem;">⚔️ 选择射击模式</h2>
+                <div style="display:flex;gap:2rem;margin-bottom:2rem;">
+                    <button id="autoModeBtn" class="mode-btn" style="padding:20px 40px;font-size:1.8rem;background:linear-gradient(45deg,#8B0000,#B22222);border:3px solid #ffcc00;border-radius:10px;color:#ffcc00;cursor:pointer;transition:all 0.3s;">
+                        🎯 自动射击<br><small>鼠标指向自动射击</small>
+                    </button>
+                    <button id="manualModeBtn" class="mode-btn" style="padding:20px 40px;font-size:1.8rem;background:linear-gradient(45deg,#004488,#0066aa);border:3px solid #00ccff;border-radius:10px;color:#00ccff;cursor:pointer;transition:all 0.3s;">
+                        🖱️ 手动射击<br><small>鼠标左键点击射击</small>
+                    </button>
+                </div>
+                <div style="color:#ff9966;font-size:1.2rem;max-width:600px;text-align:center;">
+                    <p>🎯 自动模式：鼠标指向敌人自动射击，适合新手</p>
+                    <p>🖱️ 手动模式：鼠标左键点击射击，更有操作感</p>
+                    <p style="margin-top:1rem;">游戏中可按 M 键切换模式</p>
+                </div>
             </div>
-            <div style="color:#ff9966;font-size:1.2rem;max-width:600px;text-align:center;">
-                <p>🎯 自动模式：鼠标指向敌人自动射击，适合新手</p>
-                <p>🖱️ 手动模式：鼠标左键点击射击，更有操作感</p>
-                <p style="margin-top:1rem;">游戏中可按 M 键切换模式</p>
-            </div>
-        </div>
-    `;
-    
-    const modal = document.createElement('div');
-    modal.id = 'shootingModeModal';
-    modal.innerHTML = modeSelectionHTML;
-    document.body.appendChild(modal);
-    
-    document.getElementById('autoModeBtn').addEventListener('click', function() {
-        shootingMode = 'auto';
-        startGameWithMode(isDailyMode, challenge);
-    });
-    
-    document.getElementById('manualModeBtn').addEventListener('click', function() {
-        shootingMode = 'manual';
-        startGameWithMode(isDailyMode, challenge);
-    });
-}
-
-function startGameWithMode(isDailyMode, challenge) {
-    document.getElementById('shootingModeModal')?.remove();
-    document.getElementById('startScreen').style.display = 'none';
-    document.getElementById('gameCanvas').style.display = 'block';
-    document.getElementById('nameInput').style.display = 'none';
-    if (soundManager.enabled) {
-        soundManager.playBackgroundMusic();
+        `;
+        
+        const modal = document.createElement('div');
+        modal.id = 'shootingModeModal';
+        modal.innerHTML = modeSelectionHTML;
+        document.body.appendChild(modal);
+        
+        document.getElementById('autoModeBtn').addEventListener('click', function() {
+            shootingMode = 'auto';
+            startGameWithMode(isDailyMode, challenge);
+        });
+        
+        document.getElementById('manualModeBtn').addEventListener('click', function() {
+            shootingMode = 'manual';
+            startGameWithMode(isDailyMode, challenge);
+        });
     }
-    startGame(isDailyMode, challenge);
-}
 
-    // 新增：排行榜管理器
+    function startGameWithMode(isDailyMode, challenge) {
+        document.getElementById('shootingModeModal')?.remove();
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('gameCanvas').style.display = 'block';
+        document.getElementById('nameInput').style.display = 'none';
+        if (soundManager.enabled) {
+            soundManager.playBackgroundMusic();
+        }
+        startGame(isDailyMode, challenge);
+    }
+
     class LeaderboardManager {
         constructor() {
             this.key = 'survivalGameLeaderboard';
@@ -856,7 +838,6 @@ function startGameWithMode(isDailyMode, challenge) {
             const board = isDaily ? this.dailyLeaderboard : this.leaderboard;
             board.push(entry);
             board.sort((a, b) => b.score - a.score);
-            // 只保留前50名
             if (board.length > 50) board.length = 50;
             this.save();
         }
@@ -875,10 +856,8 @@ function startGameWithMode(isDailyMode, challenge) {
 
     const leaderboardManager = new LeaderboardManager();
 
-    // 新增：每日挑战生成器
     class DailyChallengeGenerator {
         static generateChallenge(seedDate = new Date()) {
-            // 使用日期作为种子生成固定挑战
             const seed = this.hashCode(seedDate.toDateString());
             const rng = this.seededRandom(seed);
             
@@ -928,7 +907,7 @@ function startGameWithMode(isDailyMode, challenge) {
             for (let i = 0; i < str.length; i++) {
                 const char = str.charCodeAt(i);
                 hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // 转换为32位整数
+                hash = hash & hash;
             }
             return hash;
         }
@@ -941,25 +920,23 @@ function startGameWithMode(isDailyMode, challenge) {
         }
     }
 
-    // 新增：分数计算器
     function calculateScore(wave, time, enemiesKilled, isDaily = false) {
         let score = wave * 1000 + enemiesKilled * 10 + Math.floor(time / 1000) * 5;
-        if (isDaily) score = Math.floor(score * 1.2); // 每日挑战分数加成
+        if (isDaily) score = Math.floor(score * 1.2);
         return score;
     }
 
-    // 原有事件监听
     document.getElementById('startButton').addEventListener('click', function() {
-    showShootingModeSelection(false); // false表示普通模式
-});
+        showShootingModeSelection(false);
+    });
 
-document.getElementById('dailyChallengeBtn').addEventListener('click', function() {
-    const todayChallenge = DailyChallengeGenerator.generateChallenge();
-    const confirmMsg = `今日挑战：${todayChallenge.name}\n${todayChallenge.description}\n\n是否接受挑战？`;
-    if (confirm(confirmMsg)) {
-        showShootingModeSelection(true, todayChallenge); // true表示每日挑战模式
-    }
-});
+    document.getElementById('dailyChallengeBtn').addEventListener('click', function() {
+        const todayChallenge = DailyChallengeGenerator.generateChallenge();
+        const confirmMsg = `今日挑战：${todayChallenge.name}\n${todayChallenge.description}\n\n是否接受挑战？`;
+        if (confirm(confirmMsg)) {
+            showShootingModeSelection(true, todayChallenge);
+        }
+    });
 
     document.getElementById('leaderboardBtn').addEventListener('click', function() {
         showLeaderboard();
@@ -968,24 +945,21 @@ document.getElementById('dailyChallengeBtn').addEventListener('click', function(
     document.getElementById('soundToggle').addEventListener('click', function() {
         soundManager.toggle();
     });
-    // 音量滑块控制
-document.getElementById('volumeSlider').addEventListener('input', function(e) {
-    const volume = e.target.value / 100; // 转换为0-1范围
-    soundManager.setBackgroundMusicVolume(volume);
     
-    // 可选：保存音量设置到本地存储
-    localStorage.setItem('gameVolume', volume);
-});
-
-// 页面加载时恢复音量设置
-window.addEventListener('load', function() {
-    const savedVolume = localStorage.getItem('gameVolume');
-    if (savedVolume !== null) {
-        const volume = parseFloat(savedVolume);
-        document.getElementById('volumeSlider').value = volume * 100;
+    document.getElementById('volumeSlider').addEventListener('input', function(e) {
+        const volume = e.target.value / 100;
         soundManager.setBackgroundMusicVolume(volume);
-    }
-});
+        localStorage.setItem('gameVolume', volume);
+    });
+
+    window.addEventListener('load', function() {
+        const savedVolume = localStorage.getItem('gameVolume');
+        if (savedVolume !== null) {
+            const volume = parseFloat(savedVolume);
+            document.getElementById('volumeSlider').value = volume * 100;
+            soundManager.setBackgroundMusicVolume(volume);
+        }
+    });
 
     function showLeaderboard() {
         const dailyScores = leaderboardManager.getDailyScores();
@@ -1022,7 +996,7 @@ window.addEventListener('load', function() {
                         }
                     </div>
                 </div>
-                <button onclick="document.getElementById(\'leaderboardModal\').remove()" 
+                <button onclick="document.getElementById('leaderboardModal').remove()" 
                         style="margin-top:20px;padding:10px 20px;background:#ff9900;border:none;
                                border-radius:5px;color:white;cursor:pointer;width:100%;">
                     关闭
@@ -1062,12 +1036,10 @@ window.addEventListener('load', function() {
         let isGameOver = false;
         let gameTime = 0;
         let pendingWaveStart = false;
-        let enemiesKilled = 0; // 新增：杀敌数统计
-         // === 新增：加特林音效控制变量 ===
-        let minigunSound = null;        // 存储加特林音效对象
-        let minigunSoundPlaying = false; // 是否正在播放
-        let minigunFireCount = 0;       // 加特林射击计数
-        // === 新增结束 ===
+        let enemiesKilled = 0;
+        let minigunSound = null;
+        let minigunSoundPlaying = false;
+        let minigunFireCount = 0;
         let lastFired = 0;
         let missileTimer = 0;
         let thunderTimer = 0;
@@ -1088,7 +1060,7 @@ window.addEventListener('load', function() {
             areaSize: 1.0, lifesteal: 0,
             invulnerable: false, 
             thunderLvl: 0, auraLvl: 0, executeThreshold: 0,
-            enemySpeedMult: 1.0 // 新增：敌人速度倍率（用于挑战）
+            enemySpeedMult: 1.0
         };
 
         let powerUp = { 
@@ -1102,7 +1074,6 @@ window.addEventListener('load', function() {
             fireRateMult: 0.5   
         };
 
-        // 如果是每日挑战模式，应用挑战修改
         if (isDailyMode && challenge) {
             playerStats.weapon = challenge.weapon;
             if (challenge.mods.damageMult) playerStats.damageMult = challenge.mods.damageMult;
@@ -1135,25 +1106,19 @@ window.addEventListener('load', function() {
 ];
 
         let ui = {};
-        let gameMode = { isDaily: isDailyMode, challenge: challenge }; // 新增：游戏模式信息
+        let gameMode = { isDaily: isDailyMode, challenge: challenge };
 
         function preload() {
             this.load.image('gameBackground', 'res/background.png');
             let gfx = this.make.graphics();
             gfx.fillStyle(0xffffff).fillCircle(2,2,2).generateTexture('star', 4, 4);
-            //gfx.clear().lineStyle(2, 0x00ff00).fillStyle(0x003300).fillCircle(16,16,16).strokeCircle(16,16,16).lineStyle(2, 0x00ff00).moveTo(16,16).lineTo(32,16).strokePath().generateTexture('player', 32, 32);
             this.load.image('player', 'res/balu.png');
             gfx.clear().fillStyle(0xffffaa).fillCircle(5,5,5).generateTexture('bullet', 10, 10);
             gfx.clear().fillStyle(0xff4444).fillCircle(6,6,6).generateTexture('bullet_enemy', 12, 12);
-            //gfx.clear().lineStyle(2, 0xff0000).fillStyle(0x550000).fillCircle(15,15,14).strokeCircle(15,15,14).generateTexture('enemy_basic', 30, 30);
             this.load.image('enemy_basic', 'res/xiaoguizi1.png');
-            //gfx.clear().lineStyle(2, 0x00ffff).fillStyle(0x005555).beginPath().moveTo(0,30).lineTo(15,0).lineTo(30,30).closePath().fillPath().strokePath().generateTexture('enemy_fast', 30, 30);
-            //gfx.clear().lineStyle(3, 0xff00ff).fillStyle(0x550055).fillRect(0,0,40,40).strokeRect(0,0,40,40).generateTexture('enemy_tank', 40, 40);
-            //gfx.clear().lineStyle(2, 0xffaa00).fillStyle(0x553300).beginPath().moveTo(15,0).lineTo(30,15).lineTo(15,30).lineTo(0,15).closePath().fillPath().strokePath().generateTexture('enemy_shooter', 30, 30);
             this.load.image('enemy_fast', 'res/xiaoguizi2.png');
             this.load.image('enemy_tank', 'res/xiaoguizi3.png');
             this.load.image('enemy_shooter', 'res/xiaoguizi4.png');
-            //gfx.clear().lineStyle(4, 0xff0000).fillStyle(0x440000).beginPath().moveTo(0, -60).lineTo(50, -20).lineTo(40, 40).lineTo(0, 60).lineTo(-40, 40).lineTo(-50, -20).closePath().fillPath().strokePath().generateTexture('enemy_boss', 100, 120);
             this.load.image('enemy_boss', 'res/xiaoguizi5.png');
             gfx.clear().fillStyle(0x00aaff).fillCircle(6,6,6).generateTexture('xp_orb', 12, 12);
             gfx.clear().fillStyle(0xaa00ff).lineStyle(2,0xffffff).fillCircle(10,10,8).strokeCircle(10,10,10).generateTexture('orbiter', 20, 20);
@@ -1171,17 +1136,15 @@ window.addEventListener('load', function() {
             this.load.audio('boss1_sfx','res/boss1.mp3');
             this.load.audio('boss2_sfx','res/boss2.mp3');
             this.load.audio('boss3_sfx','res/boss3.mp3');
-             //新增：加载加特林循环音效（如果需要单独的音效）
-            this.load.audio('minigun_loop_sfx','res/jiatelin_loop.mp3');
+            this.load.audio('minigun_loop_sfx','res/jiatelin.mp3');
         }
 
         function create() {
-            //background = this.add.tileSprite(512, 384, 1024, 768, 'star').setAlpha(0.3).setScrollFactor(0);
             background = this.add.image(512, 384, 'gameBackground')
-            .setDisplaySize(1024*2, 768*2)  // 设置大小与游戏画布一致
-            .setAlpha(0.8)              // 设置透明度（0.8是建议值，可调整）
-            .setScrollFactor(0.1)       // 轻微视差效果
-            .setDepth(-1);              // 放在最底层
+            .setDisplaySize(1024*2, 768*2)
+            .setAlpha(0.8)
+            .setScrollFactor(0.1)
+            .setDepth(-1);
             particles = this.add.particles(0, 0, 'particle', { speed: {min:50, max:200}, scale:{start:0.8, end:0}, blendMode:'ADD', lifespan:400, emitting:false });
 
             player = this.physics.add.sprite(512, 384, 'player').setCollideWorldBounds(true).setDepth(20);
@@ -1212,7 +1175,6 @@ window.addEventListener('load', function() {
             this.physics.add.overlap(player, enemyBullets, hitPlayerBullet, null, this);
 
             createUI(this);
-            // 添加键盘切换射击模式
             this.input.keyboard.on('keydown-M', () => {
                 if (shootingMode === 'auto') {
                     shootingMode = 'manual';
@@ -1223,14 +1185,13 @@ window.addEventListener('load', function() {
                 }
             });
             
-            // 显示模式专属提示
             if (gameMode.isDaily) {
                 showWaveText(this, `每日挑战: ${gameMode.challenge.name}`);
                 this.time.delayedCall(1500, () => {
                     showWaveText(this, gameMode.challenge.description);
                 });
             } else {
-                showWaveText(this, "WAVE 1");
+                showWaveText(this, "波次 1");
             }
             
             soundManager.play('waveStart');
@@ -1306,7 +1267,7 @@ window.addEventListener('load', function() {
             particles.emitParticleAt(player.x, player.y, 20);
             player.scene.cameras.main.shake(100, 0.01);
             player.scene.cameras.main.flash(200, 255, 255, 0);
-            spawnDamageText(player.scene, player.x, player.y - 60, "POWER UP!", true, '#ffff00');
+            spawnDamageText(player.scene, player.x, player.y - 60, "力量爆发！", true, '#ffff00');
             soundManager.play('powerUp');
         }
         
@@ -1316,7 +1277,7 @@ window.addEventListener('load', function() {
                     powerUp.isActive = false;
                     playerStats.speed = playerStats.baseSpeed;
                     player.clearTint();
-                    spawnDamageText(player.scene, player.x, player.y - 60, "POWER DOWN", false, '#ff9900');
+                    spawnDamageText(player.scene, player.x, player.y - 60, "力量消退", false, '#ff9900');
                 } else {
                     if (Math.random() > 0.7) {
                         particles.emitParticleAt(player.x + (Math.random()-0.5)*30, player.y + (Math.random()-0.5)*30, 1);
@@ -1337,14 +1298,11 @@ window.addEventListener('load', function() {
         fireRateMult *= powerUp.fireRateMult;
     }
     
-    // === 关键修复：在切换武器时立即停止加特林音效 ===
     if (playerStats.weapon !== 'minigun' && minigunSoundPlaying) {
         stopMinigunSound(scene);
     }
     
-    // 处理近战武器（保持原有逻辑）
     if (playerStats.weapon === 'blade') {
-        // 近战武器只受冷却时间控制
         if (time > lastFired) {
             performMeleeAttack(scene, mouseAngle);
             lastFired = time + (baseDelay * fireRateMult);
@@ -1352,15 +1310,12 @@ window.addEventListener('load', function() {
         return;
     }
     
-    // 处理射击武器（根据模式）
     if (time > lastFired) {
         let shouldFire = false;
         
         if (shootingMode === 'auto') {
-            // 自动模式：只要冷却时间到了就射击
             shouldFire = true;
         } else if (shootingMode === 'manual') {
-            // 手动模式：检查鼠标左键是否按下
             const pointer = scene.input.activePointer;
             if (pointer.isDown) {
                 shouldFire = true;
@@ -1368,7 +1323,6 @@ window.addEventListener('load', function() {
         }
         
         if (shouldFire) {
-            // === 确保其他武器开始前加特林音效已停止 ===
             if (playerStats.weapon !== 'minigun' && minigunSoundPlaying) {
                 stopMinigunSound(scene);
             }
@@ -1377,12 +1331,10 @@ window.addEventListener('load', function() {
         }
     }
     
-    // === 修复：在加特林武器时检查是否需要启动音效 ===
     if (playerStats.weapon === 'minigun' && time > lastFired - 50 && !minigunSoundPlaying) {
         startMinigunSound(scene);
     }
     
-    // === 修复：当不是加特林时确保音效停止 ===
     if (playerStats.weapon !== 'minigun' && minigunSoundPlaying) {
         stopMinigunSound(scene);
     }
@@ -1414,7 +1366,7 @@ window.addEventListener('load', function() {
                     if (scene.cache.audio.exists('thunder_sfx')) {
                         scene.sound.play('thunder_sfx', { volume: 0.6 });
                     } else {
-                        soundManager.play('thunder');  // 回退到合成音效
+                        soundManager.play('thunder');
                     }
                 }
                 thunderTimer = time + (1500 / (1 + playerStats.thunderLvl * 0.2));
@@ -1438,7 +1390,6 @@ window.addEventListener('load', function() {
 
         
         function performMeleeAttack(scene, angle) {
-    // === 添加检查：确保不在冷却中 ===
     if (scene.time.now < lastFired - 100) return;
     
     let reach = 200 * playerStats.areaSize;
@@ -1448,15 +1399,12 @@ window.addEventListener('load', function() {
     
     let knockbackForce = 350;
     
-    // 清除之前的图形
     slashGraphics.clear(); 
     
-    // 绘制新的攻击范围
     slashGraphics.fillStyle(0xff3300, 0.5); 
     slashGraphics.slice(player.x, player.y, reach, angle - spread/2, angle + spread/2, false); 
     slashGraphics.fillPath();
     
-    // 淡出效果
     scene.tweens.add({ 
         targets: slashGraphics, 
         alpha: 0, 
@@ -1467,10 +1415,8 @@ window.addEventListener('load', function() {
         }
     });
     
-    // 屏幕震动
     scene.cameras.main.shake(120, 0.015);
     
-    // 处理敌人伤害
     let targets = enemies.getChildren(); 
     for (let i = 0; i < targets.length; i++) {
         let enemy = targets[i];
@@ -1491,7 +1437,6 @@ window.addEventListener('load', function() {
         }
     }
     
-    // 播放音效
     if (scene.cache.audio.exists('blade_sfx')) {
         scene.sound.play('blade_sfx', { volume: 0.4 });
     } else {
@@ -1499,15 +1444,13 @@ window.addEventListener('load', function() {
     }
 }
 
-        // === 新增：加特林音效控制函数 ===
 function startMinigunSound(scene) {
     if (minigunSoundPlaying || !scene.sound) return;
     
     if (scene.cache.audio.exists('minigun_sfx')) {
-        // 播放循环音效
         minigunSound = scene.sound.add('minigun_sfx', {
             volume: 0.3,
-            loop: true,  // 关键：设置为循环播放
+            loop: true,
             rate: 1.0
         });
         minigunSound.play();
@@ -1515,7 +1458,6 @@ function startMinigunSound(scene) {
         minigunFireCount = 0;
         console.log("加特林音效开始循环播放");
     } else {
-        // 如果没有自定义音效，使用合成音效（但不能循环）
         soundManager.play('minigun');
     }
 }
@@ -1524,7 +1466,6 @@ function startMinigunSound(scene) {
     function stopMinigunSound(scene) {
     if (minigunSound && minigunSoundPlaying) {
         console.log("停止加特林音效");
-        // 立即停止音效，不使用淡出
         try {
             if (minigunSound.isPlaying) {
                 minigunSound.stop();
@@ -1541,7 +1482,7 @@ function startMinigunSound(scene) {
         minigunFireCount = 0;
     }
 }
-// === 新增结束 ===
+
         function fireMainWeapon(scene) {
             const baseAngle = player.rotation;
             let damage = 25, speed = 700;
@@ -1554,7 +1495,7 @@ function startMinigunSound(scene) {
                 if (scene.cache.audio.exists('shotgun_sfx')) {
                     scene.sound.play('shotgun_sfx', { volume: 0.4 });
                 } else {
-                    soundManager.play('shotgun');  // 回退到合成音效
+                    soundManager.play('shotgun');
                     }
             }
             else if (playerStats.weapon === 'minigun') { 
@@ -1565,11 +1506,8 @@ function startMinigunSound(scene) {
             startMinigunSound(scene);
         }
         
-        // 增加射击计数
         minigunFireCount++;
-        // 如果射击次数达到一定数量，可以调整音效
         if (minigunFireCount % 10 === 0 && minigunSound) {
-            // 可以在这里调整音效音量或音调
             minigunSound.setRate(1.0 + (minigunFireCount % 20) * 0.05);
         }
             }
@@ -1579,7 +1517,7 @@ function startMinigunSound(scene) {
                 if (scene.cache.audio.exists('shoot_sfx')) {
                     scene.sound.play('shoot_sfx', { volume: 0.4 });
                 } else {
-                    soundManager.play('shoot');  // 回退到合成音效
+                    soundManager.play('shoot');
                     }
             }
             
@@ -1604,19 +1542,17 @@ function startMinigunSound(scene) {
             if (playerStats.executeThreshold > 0 && enemy.type !== 'boss') {
                 if (enemy.hp < enemy.maxHp * playerStats.executeThreshold) {
                     amt = enemy.hp + 9999; 
-                    spawnDamageText(enemy.scene, enemy.x, enemy.y - 30, "EXECUTE!", true, '#ff0000');
+                    spawnDamageText(enemy.scene, enemy.x, enemy.y - 30, "处决！", true, '#ff0000');
                 }
             }
             enemy.hp -= amt;
             enemy.setTint(0xff0000);
             enemy.scene.time.delayedCall(50, ()=> { if(enemy.active) enemy.clearTint(); });
             if (enemy.scene.cache.audio.exists('hit_sfx')) {
-        //enemy.scene.sound.play('hit_sfx', { volume: 0.3 });
     } else {
-        //soundManager.play('hit');
     }
             if (enemy.hp <= 0) {
-                enemiesKilled++; // 新增：统计杀敌数
+                enemiesKilled++;
                 if (playerStats.lifesteal > 0 && playerStats.hp < playerStats.maxHp) {
                     let healAmt = playerStats.maxHp * playerStats.lifesteal;
                     updateHealth(healAmt);
@@ -1627,7 +1563,6 @@ function startMinigunSound(scene) {
                     ui.bossContainer.setVisible(false);
                     bossGraphics.clear();
                     enemy.scene.cameras.main.shake(1000, 0.03);
-                    // 新增：BOSS战后恢复音乐音量
                     soundManager.setBackgroundMusicVolume(0.1);
                     for(let i=0; i<50; i++) { 
                         let xp = xpOrbs.get(); 
@@ -1661,7 +1596,6 @@ function startMinigunSound(scene) {
             if (isGameOver || playerStats.invulnerable || powerUp.isActive) return;
             playerStats.hp -= amt;
             playerStats.invulnerable = true; 
-            // 如果正在使用加特林，停止音效
             if (playerStats.weapon === 'minigun' && minigunSoundPlaying) {
                 stopMinigunSound(scene);
             }
@@ -1684,19 +1618,16 @@ function startMinigunSound(scene) {
                 soundManager.pauseBackgroundMusic();
                 ui.gameOverText.setVisible(true); 
                 
-                // 新增：游戏结束显示分数和提交
                 const finalScore = calculateScore(wave, gameTime, enemiesKilled, gameMode.isDaily);
                 ui.finalScoreText = scene.add.text(config.width/2, 400, 
                     `最终分数: ${finalScore}\n波次: ${wave}\n杀敌数: ${enemiesKilled}`, 
                     {fontSize:'32px', color:'#ffff00', stroke:'#000', strokeThickness:4, align:'center'})
                     .setOrigin(0.5).setVisible(true).setScrollFactor(0);
                 
-                // 显示名字输入框
                 const nameInput = document.getElementById('nameInput');
                 nameInput.style.display = 'block';
                 nameInput.value = localStorage.getItem('playerName') || '匿名玩家';
                 
-                // 按Enter提交分数
                 const submitScore = () => {
                     const name = nameInput.value.trim() || '匿名玩家';
                     localStorage.setItem('playerName', name);
@@ -1704,7 +1635,6 @@ function startMinigunSound(scene) {
                     nameInput.style.display = 'none';
                     ui.finalScoreText.setText(`分数已提交！\n${name}: ${finalScore}`);
                     
-                    // 3秒后自动刷新页面或显示排行榜
                     setTimeout(() => {
                         location.reload();
                     }, 3000);
@@ -1715,7 +1645,6 @@ function startMinigunSound(scene) {
                     if (e.key === 'Enter') submitScore();
                 };
                 
-                // 点击按钮提交
                 ui.submitBtn = scene.add.text(config.width/2, 500, '按Enter提交分数', 
                     {fontSize:'24px', color:'#ff9900', fontStyle:'bold'})
                     .setOrigin(0.5).setVisible(true).setScrollFactor(0);
@@ -1828,7 +1757,6 @@ function startMinigunSound(scene) {
                 spawnBoss(scene); 
                 if(wave === 5) showWaveText(scene, "BOSS降临！！！"); 
                 scene.cameras.main.shake(500, 0.02); 
-                //soundManager.play('bossAppear');
             } else { 
                 waveTimeLeft = 30 + wave; 
                 showWaveText(scene, "波次： " + wave); 
@@ -1874,16 +1802,11 @@ function startMinigunSound(scene) {
             boss.hp = bossHp; boss.maxHp = bossHp; boss.type = 'boss'; 
             boss.setCollideWorldBounds(true); boss.setDepth(30); boss.setDrag(500);
             ui.bossContainer.setVisible(true); 
-            // 新增：BOSS战时增强音乐音量
-            // ★ 新增：播放自己导入的 BOSS 出场音效
             if (scene.cache.audio.exists('BOSS_sfx')) {
-                // 优先用 Phaser 自带音频系统
                 scene.sound.play('BOSS_sfx', { volume: 3.0 });
             } else {
-                // 如果没加载到，就用 soundManager 兜底
                 soundManager.play('bossAppear');
             }
-            //soundManager.setBackgroundMusicVolume(0.1);
             boss.state = 'enter'; 
             boss.stateTimer = 0;
             boss.attackCount = 0;
@@ -1963,7 +1886,7 @@ function startMinigunSound(scene) {
                         for(let i=0; i<4; i++) {
                             createEnemy(scene, this.x + (Math.random()-0.5)*200, this.y + (Math.random()-0.5)*200, 'fast');
                         }
-                        spawnDamageText(scene, this.x, this.y-60, "MINIONS!", true, '#ff00ff');
+                        spawnDamageText(scene, this.x, this.y-60, "召唤小兵！", true, '#ff00ff');
                         this.state = 'idle'; this.stateTimer = 0;
                         break;
                 }
@@ -2087,12 +2010,11 @@ function startMinigunSound(scene) {
         function createUI(scene) {
             scene.add.rectangle(config.width/2, 20, config.width-100, 16, 0x222222).setStrokeStyle(2,0x666666).setScrollFactor(0);
             ui.xpBar = scene.add.rectangle(55, 20, 0, 14, 0x00aaff).setOrigin(0,0.5).setScrollFactor(0);
-            ui.levelText = scene.add.text(50, 40, 'LV.1', {fontSize:'20px', fontStyle:'bold'}).setScrollFactor(0);
+            ui.levelText = scene.add.text(50, 40, '等级.1', {fontSize:'20px', fontStyle:'bold'}).setScrollFactor(0);
             ui.hpText = scene.add.text(config.width-50, 40, '血量:100/100', {fontSize:'20px', color:'#0f0', fontStyle:'bold'}).setOrigin(1,0).setScrollFactor(0);
             ui.waveText = scene.add.text(config.width/2, 50, '波次:1', {fontSize:'24px', color:'#fff'}).setOrigin(0.5).setScrollFactor(0);
-            ui.timerText = scene.add.text(config.width/2, 80, '30s', {fontSize:'18px', color:"#bbb"}).setOrigin(0.5).setScrollFactor(0);
+            ui.timerText = scene.add.text(config.width/2, 80, '30秒', {fontSize:'18px', color:"#bbb"}).setOrigin(0.5).setScrollFactor(0);
             
-            // 新增：模式指示器
             if (gameMode.isDaily) {
                 ui.modeText = scene.add.text(config.width-20, 20, '每日挑战', 
                     {fontSize:'16px', color:'#ff9900', fontStyle:'bold'})
@@ -2100,29 +2022,26 @@ function startMinigunSound(scene) {
             }
             
             scene.add.text(config.width/2, config.height - 40, '空格键开启5秒真男人,获得大幅增益效果！', {fontSize:'16px', color:'#888'}).setOrigin(0.5).setScrollFactor(0);
-                // === 新增：射击模式显示和提示 ===
+                
     ui.shootingModeText = scene.add.text(50, config.height - 60, `射击模式: ${shootingMode === 'auto' ? '自动' : '手动'}`, {
         fontSize: '16px',
         color: shootingMode === 'auto' ? '#00ff00' : '#00ccff',
         fontStyle: 'bold'
     }).setOrigin(0, 0.5).setScrollFactor(0);
 
-    // 添加提示文字
     scene.add.text(config.width/2, config.height - 80, '按 M 键切换射击模式', {
         fontSize: '14px',
         color: '#ff9900'
     }).setOrigin(0.5).setScrollFactor(0);
     
-    // 继续原有的代码...
     ui.powerUpBar = scene.add.rectangle(config.width/2 - 100, config.height - 20, 200, 8, 0xffff00).setOrigin(0,0.5).setScrollFactor(0);
             ui.powerUpBar = scene.add.rectangle(config.width/2 - 100, config.height - 20, 200, 8, 0xffff00).setOrigin(0,0.5).setScrollFactor(0);
             let bb = scene.add.rectangle(0,0,600,24,0x330000).setOrigin(0,0.5); 
             let bf = scene.add.rectangle(0,0,600,24,0xff0000).setOrigin(0,0.5); 
-            let bt = scene.add.text(300,-25,'BOSS ENTITY',{fontSize:'20px', fontStyle:'bold', stroke:'#000', strokeThickness:4}).setOrigin(0.5);
+            let bt = scene.add.text(300,-25,'BOSS实体',{fontSize:'20px', fontStyle:'bold', stroke:'#000', strokeThickness:4}).setOrigin(0.5);
             ui.bossFill = bf; ui.bossContainer = scene.add.container(config.width/2 - 300, config.height - 100, [bb,bf,bt]).setVisible(false).setScrollFactor(0);
             ui.gameOverText = scene.add.text(config.width/2, 300,'你死了！\n点击屏幕重新挑战',{fontSize:'60px',color:'#f00',stroke:'#fff',strokeThickness:4, align:'center'}).setOrigin(0.5).setVisible(false).setScrollFactor(0);
             
-            // 新增：游戏结束时的分数显示
             ui.finalScoreText = scene.add.text(0, 0, '', {fontSize:'32px', color:'#ffff00', stroke:'#000', strokeThickness:4, align:'center'})
                 .setOrigin(0.5).setVisible(false).setScrollFactor(0);
             ui.submitBtn = scene.add.text(0, 0, '', {fontSize:'24px', color:'#ff9900', fontStyle:'bold'})
@@ -2167,7 +2086,6 @@ function startMinigunSound(scene) {
             
             createUpgradeMenu(scene);
             
-            // 属性面板
             ui.statsPanel = scene.add.rectangle(10, 10, 200, 140, 0x000000, 0.6)
                 .setOrigin(0, 0)
                 .setStrokeStyle(2, 0x444444)
@@ -2191,8 +2109,8 @@ function startMinigunSound(scene) {
         
         function updateUI(time) {
             ui.xpBar.width = (config.width-110) * Math.min(currentXP/neededXP, 1); 
-            ui.levelText.setText(`LV.${level}`); 
-            ui.hpText.setText(`HP: ${Math.floor(playerStats.hp)}/${playerStats.maxHp}`);
+            ui.levelText.setText(`等级.${level}`); 
+            ui.hpText.setText(`血量: ${Math.floor(playerStats.hp)}/${playerStats.maxHp}`);
             
             let powerUpP = 1;
             if (time < powerUp.cooldown) {
@@ -2202,16 +2120,15 @@ function startMinigunSound(scene) {
             ui.powerUpBar.fillColor = powerUpP >= 1 ? 0xffff00 : 0x555555;
             
             if (isBossWave) { 
-                ui.waveText.setText('BOSS BATTLE'); 
+                ui.waveText.setText('BOSS战'); 
                 ui.waveText.setColor('#ff0000'); 
                 ui.timerText.setText(''); 
             } else { 
                 ui.waveText.setText('波次 ' + wave); 
                 ui.waveText.setColor('#ffffff'); 
-                ui.timerText.setText(waveTimeLeft + 's'); 
+                ui.timerText.setText(waveTimeLeft + '秒'); 
             }
             
-            // 更新属性面板
             const weaponNames = {
                 'pistol': '脉冲手枪',
                 'shotgun': '碎星霰弹',
@@ -2221,10 +2138,9 @@ function startMinigunSound(scene) {
 
             ui.statsTexts.weapon.setText(`武器: ${weaponNames[playerStats.weapon] || '未知'}`);
             ui.statsTexts.damage.setText(`伤害: ${(playerStats.damageMult * 100).toFixed(0)}%`);
-            ui.statsTexts.speed.setText(`攻速: ${(1 / playerStats.fireRateMult).toFixed(2)}x`);
+            ui.statsTexts.speed.setText(`攻速: ${(1 / playerStats.fireRateMult).toFixed(2)}倍`);
             ui.statsTexts.projectiles.setText(`子弹: ${playerStats.projectileCount + 1}`);
 
-            // 技能摘要
             let skills = [];
             if (playerStats.thunderLvl > 0) skills.push(`雷${playerStats.thunderLvl}`);
             if (playerStats.auraLvl > 0) skills.push(`场${playerStats.auraLvl}`);
@@ -2233,13 +2149,11 @@ function startMinigunSound(scene) {
             if (playerStats.lifesteal > 0) skills.push('吸血');
 
             ui.statsTexts.skills.setText(`技能: ${skills.join(' ') || '无'}`);
-            // 更新射击模式显示
             ui.shootingModeText?.setText(`射击模式: ${shootingMode === 'auto' ? '自动' : '手动'}`);
             ui.shootingModeText?.setColor(shootingMode === 'auto' ? '#00ff00' : '#00ccff');
         }
         
             function showModeNotification(scene, message) {
-            // 获取游戏配置
             const gameWidth = scene.sys.game.config.width;
             const gameHeight = scene.sys.game.config.height;
             
@@ -2291,7 +2205,6 @@ function startMinigunSound(scene) {
                 btn.bg.setVisible(true).setFillStyle(0x222222).setStrokeStyle(4, Phaser.Display.Color.HexStringToColor(opt.color).color);
                 btn.title.setText(opt.name).setColor(opt.color); btn.desc.setText(opt.desc);
                 btn.zone.off('pointerdown').on('pointerdown', () => { 
-                // === 新增：切换武器前停止加特林音效 ===
                 if (opt.id && opt.id.startsWith('wp_')) {
                     stopMinigunSound(scene);
                 }
@@ -2306,21 +2219,19 @@ function startMinigunSound(scene) {
             }
         }
     }
-    // 页面可见性变化处理
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        // 页面隐藏时暂停音乐
-        if (soundManager.bgmAudio && !soundManager.bgmAudio.paused) {
-            soundManager.pauseBackgroundMusic();
+    
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            if (soundManager.bgmAudio && !soundManager.bgmAudio.paused) {
+                soundManager.pauseBackgroundMusic();
+            }
+        } else if (soundManager.bgmEnabled) {
+            const gameCanvas = document.getElementById('gameCanvas');
+            if (gameCanvas.style.display === 'block' && soundManager.bgmAudio) {
+                soundManager.playBackgroundMusic();
+            }
         }
-    } else if (soundManager.bgmEnabled) {
-        // 页面显示时恢复音乐（如果游戏正在进行）
-        const gameCanvas = document.getElementById('gameCanvas');
-        if (gameCanvas.style.display === 'block' && soundManager.bgmAudio) {
-            soundManager.playBackgroundMusic();
-        }
-    }
-});
+    });
 </script>
 </body>
 </html>
