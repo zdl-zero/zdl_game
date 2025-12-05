@@ -1611,9 +1611,9 @@ function startMinigunSound(scene) {
             enemy.setTint(0xff0000);
             enemy.scene.time.delayedCall(50, ()=> { if(enemy.active) enemy.clearTint(); });
             if (enemy.scene.cache.audio.exists('hit_sfx')) {
-        enemy.scene.sound.play('hit_sfx', { volume: 0.3 });
+        //enemy.scene.sound.play('hit_sfx', { volume: 0.3 });
     } else {
-        soundManager.play('hit');
+        //soundManager.play('hit');
     }
             if (enemy.hp <= 0) {
                 enemiesKilled++; // 新增：统计杀敌数
